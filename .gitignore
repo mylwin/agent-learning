@@ -1,0 +1,11 @@
+.venv/
+.idea/
+__pycache__/
+
+.env
+.env.*
+!.env.example
+.env copy
+
+.git.bak/
+.env example
