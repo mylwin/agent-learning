@@ -176,6 +176,17 @@ for i in range(5):  # 设置最大循环次数
     # 3.2. 调用LLM进行思考
     llm_output = llm.generate(full_prompt, system_prompt=AGENT_SYSTEM_PROMPT)
     # 模型可能会输出多余的Thought-Action，需要截断
+    # 目标：只保留「第一对 Thought...Action...」，丢掉后面多余的轮次
+    # 各部分的写法理由：
+    #   .*?         非贪婪 —— 只吃到本轮 Action 结束，若用 .* 会一路吞到文本最后
+    #   (?=...)     前瞻（零宽）—— 只停在「下一轮标记」之前，不把这个标记算进匹配内容，
+    #               所以 group(1) 天然不含分隔符，不用再手动剥离
+    #   \n\s*       下一轮标记前可能有换行 + 缩进/空行，用 \s* 兼容
+    #   (?:...)     非捕获组 —— 只是把三个候选词括起来做选择，不需要单独取值
+    #   \Z          真正的文本结尾；不用 $，因为 $ 还会匹配「末尾换行符之前」的位置
+    #   re.DOTALL   让 . 能匹配换行，否则跨行的 Thought/Action 内容根本匹配不上
+    # 例：输入 "Thought: 先查天气\nAction: get_weather(city=\"北京\")\nObservation: ...\nThought: 再查景点\nAction: ..."
+    #     截断后只剩 "Thought: 先查天气\nAction: get_weather(city=\"北京\")"
     match = re.search(r'(Thought:.*?Action:.*?)(?=\n\s*(?:Thought:|Action:|Observation:)|\Z)', llm_output, re.DOTALL)
     if match:
         truncated = match.group(1).strip()
@@ -186,6 +197,9 @@ for i in range(5):  # 设置最大循环次数
     prompt_history.append(llm_output)
 
     # 3.3. 解析并执行行动
+    # 取「第一个 Action: 」后面的全部文本：.* 贪心 + re.DOTALL 允许内容跨行；
+    # 但 "Action:" 后面这个空格是硬性要求，写成 "Action:" 换行再写调用会匹配失败，走下面的报错分支
+    # 例：'Action: get_weather(city="北京")' -> 'get_weather(city="北京")'
     action_match = re.search(r"Action: (.*)", llm_output, re.DOTALL)
     if not action_match:
         observation = "错误: 未能解析到 Action 字段。请确保你的回复严格遵循 'Thought: ... Action: ...' 的格式。"
@@ -196,12 +210,26 @@ for i in range(5):  # 设置最大循环次数
     action_str = action_match.group(1).strip()
 
     if action_str.startswith("Finish"):
+        # 方括号在正则里是「字符集」语法，所以必须写成 \[ \]；
+        # re.match 本身就锚定开头，无需再写 ^；贪心的 (.*) 会取到最后一个 ]，
+        # 因此答案里再出现 ] 也不会被截断
+        # 例：'Finish[北京今天晴，推荐故宫]' -> '北京今天晴，推荐故宫'
         final_answer = re.match(r"Finish\[(.*)\]", action_str).group(1)
         print(f"任务完成，最终答案: {final_answer}")
         break
 
+    # \w+ 取函数名（字母/数字/下划线），\( 转义左括号，否则 ( 会被当成分组起点
+    # 例：'get_weather(city="北京")' -> 'get_weather'
     tool_name = re.search(r"(\w+)\(", action_str).group(1)
+    # 取第一对括号内的参数文本；没加 re.DOTALL，只适用于「调用写在同一行」，参数换行会匹配不到（返回 None）
+    # .* 贪婪到最后一个 )，所以 "city=\"北京(朝阳)\"" 这种值里带括号没问题；
+    # 但若调用后面还跟了含括号的说明文字，会被一起吞进来（后面的 kwargs 正则只挑 key="value"，一般不受影响）
+    # 例：'get_weather(city="北京")' -> 'city="北京"'
     args_str = re.search(r"\((.*)\)", action_str).group(1)
+    # [^"]* 表示「一直取到下一个引号为止」：允许空值 ""，也允许值里带逗号和空格，
+    # 且不会因为值里出现 "key=" 这类文本而错位
+    # findall 得到 [('city', '北京'), ('weather', '晴')]，dict() 转成 {'city': '北京', 'weather': '晴'}
+    # 例：参数 'city="北京", weather="晴"' -> {'city': '北京', 'weather': '晴'}
     kwargs = dict(re.findall(r'(\w+)="([^"]*)"', args_str))
 
     if tool_name in available_tools:
