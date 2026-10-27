@@ -1,69 +1,97 @@
 import os
-from openai import OpenAI
+
 from dotenv import load_dotenv
-from typing import List, Dict
+from openai import APIError, OpenAI
+from openai.types.chat import ChatCompletionMessageParam
 
 # 加载 .env 文件中的环境变量
 load_dotenv()
+
 
 class HelloAgentsLLM:
     """
     为本书 "Hello Agents" 定制的LLM客户端。
     它用于调用任何兼容OpenAI接口的服务，并默认使用流式响应。
     """
-    def __init__(self, model: str = None, apiKey: str = None, baseUrl: str = None, timeout: int = None):
+
+    def __init__(
+        self,
+        model: str | None = None,
+        apiKey: str | None = None,
+        baseUrl: str | None = None,
+        timeout: int | None = None,
+    ):
         """
         初始化客户端。优先使用传入参数，如果未提供，则从环境变量加载。
+        参数:
+        - model: 模型ID
+        - apiKey: API密钥
+        - baseUrl: 服务地址
+        - timeout: 请求超时时间（秒）
         """
-        self.model = model or os.getenv("LLM_MODEL_ID")
-        apiKey = apiKey or os.getenv("LLM_API_KEY")
-        baseUrl = baseUrl or os.getenv("LLM_BASE_URL")
-        timeout = timeout or int(os.getenv("LLM_TIMEOUT", 60))
-        
+        self.model = model or os.getenv("MODEL_NAME")
+        apiKey = apiKey or os.getenv("OPENAI_API_KEY")
+        baseUrl = baseUrl or os.getenv("OPENAI_BASE_URL")
+        timeout = timeout or int(os.getenv("LLM_TIMEOUT", "60"))
+
         if not all([self.model, apiKey, baseUrl]):
             raise ValueError("模型ID、API密钥和服务地址必须被提供或在.env文件中定义。")
 
         self.client = OpenAI(api_key=apiKey, base_url=baseUrl, timeout=timeout)
 
-    def think(self, messages: List[Dict[str, str]], temperature: float = 0) -> str:
+    def think(
+        self, messages: list[ChatCompletionMessageParam], temperature: float = 0
+    ) -> str | None:
         """
         调用大语言模型进行思考，并返回其响应。
         """
         print(f"🧠 正在调用 {self.model} 模型...")
         try:
+            assert self.model is not None
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 temperature=temperature,
-                stream=True,
+                stream=True,  # 启用流式响应
             )
-            
+
             # 处理流式响应
             print("✅ 大语言模型响应成功:")
             collected_content = []
+            # debug 只出现一次
+            printed = False
+            # 逐个处理响应片段
             for chunk in response:
+                # 如果响应片段中没有内容，则跳过
                 if not chunk.choices:
                     continue
                 content = chunk.choices[0].delta.content or ""
+                if content and not printed:
+                    print("debug\n")
+                    printed = True
                 print(content, end="", flush=True)
                 collected_content.append(content)
             print()  # 在流式输出结束后换行
             return "".join(collected_content)
 
-        except Exception as e:
+        except APIError as e:
             print(f"❌ 调用LLM API时发生错误: {e}")
             return None
 
+
 # --- 客户端使用示例 ---
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         llmClient = HelloAgentsLLM()
-        
-        exampleMessages = [
-            {"role": "system", "content": "You are a helpful assistant that writes Python code."},
-            {"role": "user", "content": "写一个快速排序算法"}
+
+        exampleMessages: list[ChatCompletionMessageParam] = [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant that writes Python code.",
+            },
+            {"role": "user", "content": "帮我写一个函数，可以计算一个数的阶乘。"},
         ]
-        
+
         print("--- 调用LLM ---")
         responseText = llmClient.think(exampleMessages)
         if responseText:

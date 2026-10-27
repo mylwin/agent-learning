@@ -3,7 +3,11 @@
     "bigram",
     "bigrams",
     "datawhale",
+    "dotenv",
     "linalg",
-    "Qwen"
+    "Qwen",
+    "serp",
+    "serpapi",
+    "Tavily"
   ]
 }

@@ -11,6 +11,7 @@ dependencies = [
     { name = "openai" },
     { name = "python-dotenv" },
     { name = "requests" },
+    { name = "serpapi" },
     { name = "tavily" },
     { name = "tavily-python" },
     { name = "torch" },
@@ -23,6 +24,7 @@ requires-dist = [
     { name = "openai", specifier = ">=3.37.0" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
     { name = "requests", specifier = ">=2.34.2" },
+    { name = "serpapi", specifier = ">=1.1.2" },
     { name = "tavily", specifier = ">=1.1.0" },
     { name = "tavily-python", specifier = ">=0.8.5" },
     { name = "torch", specifier = ">=2.14.1" },
@@ -1623,6 +1625,18 @@ wheels = [
     { url = "https://pypi.tuna.tsinghua.edu.cn/packages/8e/3f/73ccf82579412b4a71c4ca673f10b5f1f888d7cf5af7fe24f27d30307be4/safetensors-0.8.0-cp310-abi3-win32.whl", hash = "sha256:2ddf52eac562eda224f99acfa7889d02968c1fd59a5b011ae7d8137c37e9c02d", size = 342401, upload-time = "2026-06-09T07:52:28.895Z" },
     { url = "https://pypi.tuna.tsinghua.edu.cn/packages/1b/6d/3fba214c1e5e0f69991677ec3bc17023f0421776975e1de0c682dca475e2/safetensors-0.8.0-cp310-abi3-win_amd64.whl", hash = "sha256:096ec1a98435df7beb08853bb5aa9081a84f23d0adc67ed1a0a10550f608373f", size = 355540, upload-time = "2026-06-09T07:52:27.832Z" },
     { url = "https://pypi.tuna.tsinghua.edu.cn/packages/8d/fc/7eedc3510d97878876e32774eebbeb61c43f148a96e915c84229a3e967aa/safetensors-0.8.0-cp310-abi3-win_arm64.whl", hash = "sha256:f7838e5135a406ad3e02efdcb8cf2e5397d368b0154537c4fec682dbc544d452", size = 340500, upload-time = "2026-06-09T07:52:26.745Z" },
+]
+
+[[package]]
+name = "serpapi"
+version = "1.1.2"
+source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }
+dependencies = [
+    { name = "requests" },
+]
+sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/d7/cb/9b20af90c3481b424d988104be3a8ec096971b0fa2aaa6b4263e27e92503/serpapi-1.1.2.tar.gz", hash = "sha256:c4a16b5c99c3b34469cef12a3c9c74be18912324baad74d67d1d8820d4401b24", size = 76556, upload-time = "2026-09-22T05:40:13.884Z" }
+wheels = [
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/8b/3f/543ef4d3f5004134ce2bdc3f79313cfae37e739a29db4477febed918e55d/serpapi-1.1.2-py3-none-any.whl", hash = "sha256:446943df71e8afde69906be7e918b44c8d6cdcb84e69c37d01112c313945b384", size = 11288, upload-time = "2026-09-22T05:40:12.733Z" },
 ]
 
 [[package]]
