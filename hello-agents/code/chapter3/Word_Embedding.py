@@ -5,13 +5,18 @@ embeddings = {
     "king": np.array([0.9, 0.8]),
     "queen": np.array([0.9, 0.2]),
     "man": np.array([0.7, 0.9]),
-    "woman": np.array([0.7, 0.3])
+    "woman": np.array([0.7, 0.3]),
 }
 
+
+# 定义余弦相似度函数
 def cosine_similarity(vec1, vec2):
+    # 计算两个向量的点积
     dot_product = np.dot(vec1, vec2)
+    # 计算两个向量的模
     norm_product = np.linalg.norm(vec1) * np.linalg.norm(vec2)
     return dot_product / norm_product
+
 
 # king - man + woman
 result_vec = embeddings["king"] - embeddings["man"] + embeddings["woman"]
