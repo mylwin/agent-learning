@@ -1,13 +1,19 @@
 {
   "cSpell.words": [
+    "agentchat",
+    "agentscope",
+    "asyncio",
     "bigram",
     "bigrams",
+    "DASHSCOPE",
     "datawhale",
     "dotenv",
     "linalg",
+    "plotly",
     "Qwen",
     "serp",
     "serpapi",
+    "streamlit",
     "Tavily"
   ]
 }
