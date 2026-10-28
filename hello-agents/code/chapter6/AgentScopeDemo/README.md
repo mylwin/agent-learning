@@ -17,39 +17,36 @@
 - **并发协作**：演示多智能体同时在线的实时交互
 - **角色扮演**：每个智能体具备双重身份（游戏角色+三国人物）
 - **结构化输出**：通过 Pydantic 模型约束智能体行为
-- **容错机制**：单个智能体异常不影响整体游戏流程
+- **投票容错**：缺失的投票结果按弃票处理
 
 ## 🛠️ 环境准备
 
 ### 1. 安装依赖
 
+本示例使用项目根目录的 Python 环境和 AgentScope 2.x（已验证的版本为 2.0.11）。在项目根目录安装依赖并让编辑器选择根目录的 `.venv`：
+
 ```bash
-pip install agentscope
-pip install dashscope
-pip install pydantic
+uv sync
 ```
+
+如需单独安装本示例的依赖，可使用 `pip install -r hello-agents/code/chapter6/AgentScopeDemo/requirements.txt`。
 
 ### 2. 配置环境变量
 
-设置阿里云 DashScope API Key：
+本示例使用 OpenAI 兼容的 Chat Completions 接口，与 AutoGen 示例共用以下变量。在项目根目录创建 `.env`，或者在运行前设置环境变量：
 
-```bash
-# Linux/Mac
-export DASHSCOPE_API_KEY="your-api-key-here"
-
-# Windows PowerShell
-$env:DASHSCOPE_API_KEY="your-api-key-here"
-
-# Windows CMD
-set DASHSCOPE_API_KEY=your-api-key-here
+```dotenv
+LLM_API_KEY=your-api-key-here
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_MODEL_ID=gpt-4o
 ```
 
-获取 API Key：https://dashscope.console.aliyun.com/apiKey
+将地址、模型名和密钥替换为服务商提供的配置；省略 `LLM_BASE_URL` 时使用 OpenAI 默认地址，省略 `LLM_MODEL_ID` 时使用 `gpt-4o`。模型需支持工具调用，AgentScope 使用工具调用生成游戏中的结构化结果。请勿将真实密钥提交到版本控制。
 
 ### 3. 运行游戏
 
 ```bash
-python main_cn.py
+.venv/bin/python hello-agents/code/chapter6/AgentScopeDemo/main_cn.py
 ```
 
 ## 🎭 游戏角色说明
@@ -78,12 +75,12 @@ python main_cn.py
     ├── 流程控制
     └── 胜负判定
 
-智能体交互层 (MsgHub)
+智能体交互层 (Agent.observe / Agent.reply)
     ├── 消息路由
     ├── 并发处理
     └── 状态同步
 
-角色建模层 (DialogAgent)
+角色建模层 (Agent)
     ├── 角色提示词
     ├── 结构化输出
     └── 行为约束
@@ -91,39 +88,31 @@ python main_cn.py
 
 ### 核心组件
 
-**1. 消息中心 (MsgHub)**
+**1. 消息广播**
+
+讨论按顺序进行，发言通过 `Agent.observe` 发送给其他参与者。
+
 ```python
-async with MsgHub(
-    participants=self.werewolves,
-    enable_auto_broadcast=True
-) as hub:
-    # 狼人夜晚讨论
-    for wolf in self.werewolves:
-        await wolf(structured_model=DiscussionModelCN)
+message = await player.reply()
+broadcast = UserMsg(name=player.name, content=message.get_text_content() or "")
+await asyncio.gather(*(other.observe(broadcast) for other in players if other is not player))
 ```
 
-**2. 结构化输出**
-```python
-class VoteModelCN(BaseModel):
-    vote: str = Field(description="投票目标玩家姓名")
-    reason: str = Field(description="投票理由")
-    confidence: int = Field(ge=1, le=10, description="信心程度")
-```
+**2. 结构化输出和并发投票**
 
-**3. 并发管道**
+通过 `structured_schema` 指定 Pydantic 模型，并从返回消息的 `structured_output` 读取结果。
+
 ```python
-vote_msgs = await fanout_pipeline(
-    self.alive_players,
-    msg=vote_announcement,
-    structured_model=get_vote_model_cn(self.alive_players),
-    enable_gather=False,
-)
+vote_msgs = await asyncio.gather(*(
+    player.reply(vote_announcement, structured_schema=get_vote_model_cn(players))
+    for player in players
+))
 ```
 
 ## 🎯 游戏流程
 
 ### 夜晚阶段
-1. **狼人讨论**：狼人通过 MsgHub 协商击杀目标
+1. **狼人讨论**：狼人通过消息广播协商击杀目标
 2. **预言家查验**：预言家选择查验对象
 3. **女巫行动**：女巫决定是否使用解药/毒药
 
@@ -138,7 +127,7 @@ vote_msgs = await fanout_pipeline(
 ### 修改游戏人数
 ```python
 # 在 main_cn.py 中修改
-await game.setup_game(player_count=8)  # 支持 6-12 人
+await game.setup_game(player_count=8)  # 请根据角色配置与可用人物调整人数
 ```
 
 ### 添加新角色
@@ -163,7 +152,7 @@ def get_role_prompt(role: str, character: str) -> str:
 
 ### Q: 游戏无法启动？
 A: 检查以下几点：
-- 确认 DASHSCOPE_API_KEY 环境变量已设置
+- 确认 `LLM_API_KEY`、`LLM_MODEL_ID` 和 `LLM_BASE_URL` 与所用模型服务匹配
 - 验证 API Key 是否有效
 - 检查网络连接是否正常
 
@@ -175,8 +164,8 @@ A: 可能原因：
 
 ### Q: 游戏流程卡住？
 A: 建议：
-- 检查 MsgHub 的消息传递
-- 验证并发管道的执行状态
+- 检查 `Agent.observe` 的消息传递
+- 检查并发投票的模型请求
 - 查看控制台错误日志
 
 ## 📚 技术亮点
@@ -184,7 +173,6 @@ A: 建议：
 ### 1. 消息驱动架构
 - 智能体间完全通过消息交互
 - 支持异步并发处理
-- 天然的分布式能力
 
 ### 2. 结构化输出约束
 - 游戏规则转化为代码约束

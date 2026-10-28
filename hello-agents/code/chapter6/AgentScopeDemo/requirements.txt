@@ -1,1 +1,2 @@
-agentscope==1.0.2
+agentscope>=2.0.11,<3
+python-dotenv>=1.2.4
