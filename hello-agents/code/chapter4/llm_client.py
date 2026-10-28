@@ -59,16 +59,16 @@ class HelloAgentsLLM:
             print("✅ 大语言模型响应成功:")
             collected_content = []
             # debug 只出现一次
-            printed = False
+            # printed = False
             # 逐个处理响应片段
             for chunk in response:
                 # 如果响应片段中没有内容，则跳过
                 if not chunk.choices:
                     continue
                 content = chunk.choices[0].delta.content or ""
-                if content and not printed:
-                    print("debug\n")
-                    printed = True
+                # if content and not printed:
+                #     print("debug\n")
+                #     printed = True
                 print(content, end="", flush=True)
                 collected_content.append(content)
             print()  # 在流式输出结束后换行

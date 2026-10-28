@@ -1,16 +1,20 @@
-from typing import List, Dict, Any
+import sys
+from typing import Any
+
 # 假设 llm_client.py 文件已存在，并从中导入 HelloAgentsLLM 类
 from llm_client import HelloAgentsLLM
 
 # --- 模块 1: 记忆模块 ---
 
+
 class Memory:
     """
     一个简单的短期记忆模块，用于存储智能体的行动与反思轨迹。
     """
+
     def __init__(self):
         # 初始化一个空列表来存储所有记录
-        self.records: List[Dict[str, Any]] = []
+        self.records: list[dict[str, Any]] = []
 
     def add_record(self, record_type: str, content: str):
         """
@@ -29,20 +33,21 @@ class Memory:
         """
         trajectory = ""
         for record in self.records:
-            if record['type'] == 'execution':
+            if record["type"] == "execution":
                 trajectory += f"--- 上一轮尝试 (代码) ---\n{record['content']}\n\n"
-            elif record['type'] == 'reflection':
+            elif record["type"] == "reflection":
                 trajectory += f"--- 评审员反馈 ---\n{record['content']}\n\n"
         return trajectory.strip()
 
-    def get_last_execution(self) -> str:
+    def get_last_execution(self) -> str | None:
         """
         获取最近一次的执行结果 (例如，最新生成的代码)。
         """
         for record in reversed(self.records):
-            if record['type'] == 'execution':
-                return record['content']
+            if record["type"] == "execution":
+                return record["content"]
         return None
+
 
 # --- 模块 2: Reflection 智能体 ---
 
@@ -94,6 +99,7 @@ REFINE_PROMPT_TEMPLATE = """
 请直接输出优化后的代码，不要包含任何额外的解释。
 """
 
+
 class ReflectionAgent:
     def __init__(self, llm_client, max_iterations=3):
         self.llm_client = llm_client
@@ -111,7 +117,7 @@ class ReflectionAgent:
 
         # --- 2. 迭代循环：反思与优化 ---
         for i in range(self.max_iterations):
-            print(f"\n--- 第 {i+1}/{self.max_iterations} 轮迭代 ---")
+            print(f"\n--- 第 {i + 1}/{self.max_iterations} 轮迭代 ---")
 
             # a. 反思
             print("\n-> 正在进行反思...")
@@ -128,13 +134,11 @@ class ReflectionAgent:
             # c. 优化
             print("\n-> 正在进行优化...")
             refine_prompt = REFINE_PROMPT_TEMPLATE.format(
-                task=task,
-                last_code_attempt=last_code,
-                feedback=feedback
+                task=task, last_code_attempt=last_code, feedback=feedback
             )
             refined_code = self._get_llm_response(refine_prompt)
             self.memory.add_record("execution", refined_code)
-        
+
         final_code = self.memory.get_last_execution()
         print(f"\n--- 任务完成 ---\n最终生成的代码:\n{final_code}")
         return final_code
@@ -146,18 +150,17 @@ class ReflectionAgent:
         response_text = self.llm_client.think(messages=messages) or ""
         return response_text
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # 1. 初始化LLM客户端 (请确保你的 .env 和 llm_client.py 文件配置正确)
     try:
         llm_client = HelloAgentsLLM()
     except Exception as e:
         print(f"初始化LLM客户端时出错: {e}")
-        exit()
-
+        sys.exit(1)
     # 2. 初始化 Reflection 智能体，设置最多迭代2轮
     agent = ReflectionAgent(llm_client, max_iterations=2)
 
     # 3. 定义任务并运行智能体
     task = "编写一个Python函数，找出1到n之间所有的素数 (prime numbers)。"
     agent.run(task)
-
