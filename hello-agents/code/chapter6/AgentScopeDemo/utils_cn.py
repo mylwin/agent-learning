@@ -62,9 +62,12 @@ def majority_vote_cn(votes: dict[str, str | None]) -> tuple[str, int]:
         return "无人", 0
 
     vote_counts = Counter(valid_votes)
-    most_voted = vote_counts.most_common(1)[0]
-
-    return most_voted[0], most_voted[1]
+    # 获取多数投票
+    ranked = vote_counts.most_common()
+    # 如果存在多个最高票，则返回无人
+    if len(ranked) > 1 and ranked[0][1] == ranked[1][1]:
+        return "无人", 0
+    return ranked[0]
 
 
 def check_winning_cn(

@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field, create_model
 class DiscussionModelCN(BaseModel):
     """中文版讨论输出格式"""
 
+    proposed_target: str = Field(description="建议击杀的存活非狼人玩家姓名")
+    reason: str = Field(description="建议该目标的理由")
     reach_agreement: bool = Field(
         description="是否已达成一致意见",
     )
@@ -101,6 +103,29 @@ class WerewolfKillModelCN(BaseModel):
     )
     team_coordination: str | None = Field(
         description="与狼队友的配合计划", default=None
+    )
+
+
+def get_werewolf_model_cn(agents: Sequence[Agent]) -> type[BaseModel]:
+    """获取中文版狼人模型"""
+    names = tuple(agent.name for agent in agents)
+    return create_model(
+        "WerewolfTargetModelCN",
+        __base__=WerewolfKillModelCN,
+        target=(Literal[names], Field(description="要击杀的存活非狼人玩家")),  # type: ignore
+    )
+
+
+def get_witch_model_cn(agents: Sequence[Agent]) -> type[BaseModel]:
+    """获取中文版女巫模型"""
+    names = tuple(agent.name for agent in agents)
+    return create_model(
+        "WitchTargetModelCN",
+        __base__=WitchActionModelCN,
+        target_name=(
+            Literal[names],
+            Field(default=None, description="毒杀的存活玩家"),
+        ),  # type: ignore
     )
 
 
