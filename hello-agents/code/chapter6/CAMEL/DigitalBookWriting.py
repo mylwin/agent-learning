@@ -35,9 +35,10 @@ task_prompt = """
 print(Fore.YELLOW + f"协作任务:\n{task_prompt}\n")
 
 # 初始化角色扮演会话
+# camel 中 user 座位负责提要求（Instruction），assistant 座位负责交付成果（Solution）
 role_play_session = RolePlaying(
-    assistant_role_name="心理学家",
-    user_role_name="作家",
+    assistant_role_name="作家",
+    user_role_name="心理学家",
     task_prompt=task_prompt,
     model=model,
 )
@@ -60,8 +61,8 @@ while input_msg is not None and n < chat_turn_limit:
         print(Fore.RED + "未获取到有效回复,结束协作对话")
         break
 
-    print_text_animated(Fore.BLUE + f"作家:\n\n{user_msg.content}\n")
-    print_text_animated(Fore.GREEN + f"心理学家:\n\n{assistant_msg.content}\n")
+    print_text_animated(Fore.BLUE + f"心理学家:\n\n{user_msg.content}\n")
+    print_text_animated(Fore.GREEN + f"作家:\n\n{assistant_msg.content}\n")
 
     # 检查任务完成标志
     if "CAMEL_TASK_DONE" in user_msg.content:
