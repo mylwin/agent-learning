@@ -1,34 +1,39 @@
+import json
 import re
+from typing import Any
 
 from llm_client import HelloAgentsLLM
 from openai.types.chat import ChatCompletionMessageParam
-from tools import ToolExecutor, tavily_search
+from tools import ToolExecutor, calculator, tavily_search
 
+# 输出协议改为单个 JSON 对象：字段固定，便于程序解析与校验，
+# 也避免模型在 Thought/Action 文本里夹带多余内容导致正则失配。
 REACT_PROMPT_TEMPLATE = """
 请注意，你是一个有能力调用外部工具的智能助手。
 
 可用工具如下：
 {tools}
 
-每次回复必须包含以下两个字段，字段名必须原样输出，Action: 必须位于新的一行：
-Thought: 简要说明当前判断和下一步计划。
-Action: 行动指令
+你的每次回复必须是一个合法的 JSON 对象，只包含下面两种形式之一。
 
-每次只能输出一条 Action，格式必须是以下两种之一：
-1. 调用工具：Action: 工具名称[搜索内容]
-2. 结束并回答：Action: Finish[完整的最终答案]
+调用工具时：
+{{
+  "thought": "简要说明当前判断和下一步计划",
+  "action": {{"type": "tool", "tool": "工具名称", "input": "传给工具的参数"}}
+}}
 
-结束时必须把完整答案写在 Finish 的方括号内，并保留前面的 Action:。
-不要单独输出 Finish[...]，不要在 Action 之外另写答案，也不要使用 Markdown 代码块。
-如果搜索结果不足以确定具体型号或卖点，请说明不确定，不要猜测。
+给出最终答案时：
+{{
+  "thought": "说明为什么现有信息已经足够",
+  "action": {{"type": "finish", "answer": "完整的最终答案"}}
+}}
 
-调用工具的示例：
-Thought: 我需要搜索最新信息。
-Action: TavilySearch[搜索关键词]
-
-结束的示例：
-Thought: 已收集到足够的信息，可以回答。
-Action: Finish[这里填写根据搜索结果整理出的完整答案。]
+格式要求（必须严格遵守）：
+1. 只输出 JSON 本身，不要输出 Markdown 代码块、解释文字或任何前后缀；
+2. action.type 只能是 "tool" 或 "finish"；
+3. 调用工具时 tool 必须是上面列出的工具名称之一，input 必须是非空字符串；
+4. 结束回答时把完整答案写在 answer 字段，不要另外输出文字；
+5. 如果搜索结果不足以确定具体型号或卖点，请在 answer 中说明不确定，不要猜测。
 
 现在，请开始解决以下问题：
 Question: {question}
@@ -42,6 +47,7 @@ class ReActAgent:
         llm_client: HelloAgentsLLM,
         tool_executor: ToolExecutor,
         max_steps: int = 5,
+        max_parse_failures: int = 2,
     ):
         """
         ReActAgent类构造函数。
@@ -50,13 +56,15 @@ class ReActAgent:
         - llm_client: 一个LLM客户端，用于生成回复。
         - tool_executor: 一个工具执行器，用于执行工具。
         - max_steps: 最大步骤数，默认为5。
+        - max_parse_failures: 允许的输出解析失败次数，超过后终止。
         """
         self.llm_client = llm_client
         self.tool_executor = tool_executor
         self.max_steps = max_steps
-        self.history = []
+        self.max_parse_failures = max_parse_failures
+        self.history: list[str] = []
 
-    def run(self, question: str):
+    def run(self, question: str) -> str | None:
         """
         运行ReAct代理。
 
@@ -67,6 +75,7 @@ class ReActAgent:
         """
         self.history = []
         current_step = 0
+        parse_failures = 0
 
         # 循环执行
         while current_step < self.max_steps:
@@ -87,24 +96,33 @@ class ReActAgent:
                 print("错误：LLM未能返回有效响应。")
                 break
 
-            thought, action = self._parse_output(response_text)
-            if thought:
-                print(f"🤔 思考: {thought}")
-            if not action:
-                print("警告：未能解析出有效的Action，流程终止。")
-                break
+            parsed = self._parse_response(response_text)
+            if parsed is None:
+                parse_failures += 1
+                self.history.append(
+                    "Observation: 上一条回复不是合法 JSON，未执行任何动作。"
+                    "请严格按模板只输出 JSON 对象。"
+                )
+                if parse_failures >= self.max_parse_failures:
+                    print("警告：连续无法解析输出，流程终止。")
+                    break
+                continue
 
-            if action.startswith("Finish"):
-                # 如果是Finish指令，提取最终答案并结束
-                final_answer = self._parse_action_input(action)
+            thought, action = parsed
+            print(f"🤔 思考: {thought}")
+
+            invalid_reason = self._validate_action(action)
+            if invalid_reason:
+                self.history.append(f"Observation: 动作校验失败：{invalid_reason}")
+                continue
+
+            if action["type"] == "finish":
+                final_answer = action["answer"]
                 print(f"🎉 最终答案: {final_answer}")
                 return final_answer
 
-            tool_name, tool_input = self._parse_action(action)
-            if not tool_name or not tool_input:
-                self.history.append("Observation: 无效的Action格式，请检查。")
-                continue
-
+            tool_name = action["tool"]
+            tool_input = action["input"]
             print(f"🎬 行动: {tool_name}[{tool_input}]")
             tool_function = self.tool_executor.getTool(tool_name)
             observation = (
@@ -114,52 +132,81 @@ class ReActAgent:
             )
 
             print(f"👀 观察: {observation}")
-            self.history.append(f"Action: {action}")
+            # 历史里回放同一套 JSON 协议，便于模型保持格式一致
+            self.history.append(json.dumps({"action": action}, ensure_ascii=False))
             self.history.append(f"Observation: {observation}")
 
         print("已达到最大步数，流程终止。")
         return None
 
-    def _parse_output(self, text: str):
+    @staticmethod
+    def _strip_code_fence(text: str) -> str:
+        """容错：模型偶尔仍会用 ```json 包裹输出，这里先剥掉围栏。"""
+        stripped = text.strip()
+        fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", stripped, re.DOTALL)
+        return fence.group(1).strip() if fence else stripped
+
+    def _parse_response(self, text: str) -> tuple[str, dict[str, Any]] | None:
         """
-        解析LLM的输出，返回thought和action。
+        解析LLM的输出，返回 (thought, action)。
 
         参数：
         - text: LLM的输出文本。
 
-        返回：thought和action。
+        返回：解析成功返回 (thought, action)，失败返回 None。
         """
-        # Thought: 匹配到 Action: 或文本末尾
-        thought_match = re.search(r"Thought:\s*(.*?)(?=\nAction:|$)", text, re.DOTALL)
-        # Action: 匹配到文本末尾
-        action_match = re.search(r"Action:\s*(.*?)$", text, re.DOTALL)
-        thought = thought_match.group(1).strip() if thought_match else None
-        action = action_match.group(1).strip() if action_match else None
+        try:
+            data = json.loads(self._strip_code_fence(text))
+        except json.JSONDecodeError as e:
+            print(f"警告：LLM 返回的不是合法 JSON（{e}）。")
+            return None
+
+        if not isinstance(data, dict):
+            print("警告：LLM 返回的 JSON 顶层不是对象。")
+            return None
+
+        thought = data.get("thought")
+        action = data.get("action")
+        if not isinstance(thought, str):
+            print("警告：缺少字符串字段 thought。")
+            return None
+        if not isinstance(action, dict):
+            print("警告：缺少对象字段 action。")
+            return None
         return thought, action
 
-    def _parse_action(self, action_text: str):
+    def _validate_action(self, action: dict[str, Any]) -> str | None:
         """
-        解析Action，返回tool_name和tool_input。
+        校验action的字段与取值。
 
         参数：
-        - action_text: Action文本。
+        - action: 解析出的action字典。
 
-        返回：tool_name和tool_input。
+        返回：校验通过返回 None，否则返回错误说明。
         """
-        match = re.match(r"(\w+)\[(.*)\]", action_text, re.DOTALL)
-        return (match.group(1), match.group(2)) if match else (None, None)
+        action_type = action.get("type")
 
-    def _parse_action_input(self, action_text: str):
-        """
-        解析Action文本，提取其中的输入内容。
+        if action_type == "tool":
+            tool_name = action.get("tool")
+            tool_input = action.get("input")
+            if not isinstance(tool_name, str) or not tool_name:
+                return 'action.type 为 "tool" 时必须提供非空字符串字段 tool'
+            if self.tool_executor.getTool(tool_name) is None:
+                return (
+                    f"工具 '{tool_name}' 不存在，可用工具："
+                    f"{self.tool_executor.getAvailableTools()}"
+                )
+            if not isinstance(tool_input, str) or not tool_input.strip():
+                return 'action.type 为 "tool" 时必须提供非空字符串字段 input'
+            return None
 
-        参数：
-        - action_text: Action文本。
+        if action_type == "finish":
+            answer = action.get("answer")
+            if not isinstance(answer, str) or not answer.strip():
+                return 'action.type 为 "finish" 时必须提供非空字符串字段 answer'
+            return None
 
-        返回：Action中的输入内容。
-        """
-        match = re.match(r"\w+\[(.*)\]", action_text, re.DOTALL)
-        return match.group(1) if match else ""
+        return 'action.type 只能是 "tool" 或 "finish"'
 
 
 if __name__ == "__main__":
@@ -169,7 +216,17 @@ if __name__ == "__main__":
     # 注册工具
     search_desc = "一个网页搜索引擎。当你需要回答关于时事、事实以及在你的知识库中找不到的信息时，应使用此工具。"
     tool_executor.registerTool("TavilySearch", search_desc, tavily_search)
+
+    calc_desc = (
+        "一个计算器。当需要精确的数值计算（四则运算、整除、取模、乘方、括号）时使用，"
+        "input 必须是纯算术表达式字符串，例如 (123 + 456) * 789 / 12。"
+    )
+    tool_executor.registerTool("Calculator", calc_desc, calculator)
+
     # 创建ReAct智能体实例
     agent = ReActAgent(llm_client=llm, tool_executor=tool_executor)
-    question = "华为最新的手机是哪一款？它的主要卖点是什么？"
+    # question = "华为最新的手机是哪一款？它的主要卖点是什么？"
+    question = "帮我计算 123 * 78 / 12 + 2 ^ 2 的结果"
     agent.run(question)
+    # 想单独验证计算器，可改成纯计算问题：
+    # agent.run("计算 (123 + 456) * 789 / 12 的结果")

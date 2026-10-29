@@ -6,18 +6,23 @@
     "asyncio",
     "bigram",
     "bigrams",
+    "BINOPS",
     "checkpointer",
     "DASHSCOPE",
     "datawhale",
     "dotenv",
+    "FULLWIDTH",
     "langchain",
     "langgraph",
     "linalg",
+    "Mult",
     "plotly",
     "Qwen",
     "serp",
     "serpapi",
     "streamlit",
-    "Tavily"
+    "Tavily",
+    "unaryop",
+    "UNARYOPS"
   ]
 }

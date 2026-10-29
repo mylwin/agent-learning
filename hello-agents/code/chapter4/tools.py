@@ -4,11 +4,107 @@ from tavily import TavilyClient
 # 加载 .env 文件中的环境变量
 load_dotenv()
 
+import ast
+import operator
 import os
 from collections.abc import Callable
 from typing import Any
 
 from serpapi.core import Client
+
+# 允许的二元/一元运算，用白名单代替 eval，避免执行任意代码
+_BINOPS: dict[type[ast.operator], Callable[[Any, Any], Any]] = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.FloorDiv: operator.floordiv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+}
+_UNARYOPS: dict[type[ast.unaryop], Callable[[Any], Any]] = {
+    ast.UAdd: operator.pos,
+    ast.USub: operator.neg,
+}
+# 模型常输出的全角符号，统一转成 ASCII 再解析
+_FULLWIDTH = str.maketrans(
+    {
+        "（": "(",
+        "）": ")",
+        "＋": "+",
+        "－": "-",
+        "×": "*",
+        "÷": "/",
+        "＝": "=",
+        "　": " ",
+    }
+)
+
+
+def _eval_arithmetic(node: ast.AST) -> int | float:
+    """递归求值算术表达式 AST，只放行数字、四则运算、整除、取模、乘方与正负号。"""
+    # 如果是表达式节点，继续解析其 body
+    if isinstance(node, ast.Expression):
+        return _eval_arithmetic(node.body)
+
+    # 如果是数字节点，返回值
+    if isinstance(node, ast.Constant):
+        value = node.value
+        # 如果不是数字，则抛出异常
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise TypeError(f"不支持的字面量: {value!r}")
+        return value
+
+    # 如果是二元/一元运算符，递归解析左右 operand
+    if isinstance(node, ast.BinOp):
+        func = _BINOPS.get(type(node.op))
+        if func is None:
+            raise ValueError(f"不支持的运算符: {type(node.op).__name__}")
+        left = _eval_arithmetic(node.left)
+        right = _eval_arithmetic(node.right)
+        # 对于乘方运算，限制指数的绝对值不超过 1000，避免计算过大导致性能问题
+        if isinstance(node.op, ast.Pow) and abs(right) > 1000:
+            raise ValueError("指数过大，请拆分计算")
+        return func(left, right)
+
+    # 如果是一元运算符，递归解析 operand
+    if isinstance(node, ast.UnaryOp):
+        func = _UNARYOPS.get(type(node.op))
+        if func is None:
+            raise ValueError(f"不支持的一元运算符: {type(node.op).__name__}")
+        return func(_eval_arithmetic(node.operand))
+
+    raise ValueError(f"不支持的表达式节点: {type(node).__name__}")
+
+
+def calculator(expression: str) -> str:
+    """
+    一个只做数值计算的计算器工具。
+
+    支持的写法：整数/小数、+ - * / // % **、括号与正负号；
+    兼容全角括号与 × ÷ 等符号，例如 "(123 + 456) * 789 / 12"。
+    """
+    print(f"🧮 正在执行计算: {expression}")
+
+    normalized = expression.translate(_FULLWIDTH).strip().rstrip("=？? ").strip()
+    if not normalized:
+        return "计算失败：表达式为空。"
+    if len(normalized) > 200:
+        return "计算失败：表达式过长（上限 200 个字符）。"
+
+    try:
+        result = _eval_arithmetic(ast.parse(normalized, mode="eval"))
+    except ZeroDivisionError:
+        return "计算失败：除数不能为 0。"
+    except (SyntaxError, ValueError, TypeError) as e:
+        return f"计算失败：{e}"
+
+    # 整数值的浮点结果去掉多余小数位，避免 0.30000000000000004 这类输出
+    if isinstance(result, float):
+        if result.is_integer():
+            return str(int(result))
+        return format(result, ".12g")
+    return str(result)
 
 
 def serp_api_search(query: str) -> str:
