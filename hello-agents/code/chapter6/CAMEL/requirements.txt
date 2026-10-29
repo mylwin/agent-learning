@@ -1,1 +1,4 @@
-camel-ai==0.2.75
+camel-ai==0.2.90
+python-dotenv>=1.2.4
+# camel-ai 0.2.90 仍在用 mcp 1.x 的 mcp.server.FastMCP，mcp 2.x 已改名为 MCPServer
+mcp<2
