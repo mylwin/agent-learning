@@ -1,4 +1,4 @@
-langgraph==1.0.0a3
-langchain_openai==0.3.33
+langgraph==1.2.18
+langchain_openai==1.7.3
 python-dotenv
 tavily-python
