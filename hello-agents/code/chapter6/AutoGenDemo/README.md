@@ -5,6 +5,7 @@
 ## 文件说明
 
 - `autogen_software_team.py`：创建模型客户端和智能体团队，运行协作对话。
+- `dynamic_workflow.py`：习题 2 的动态回退实现，根据审查结果退回产品经理或工程师。
 - `output.py`：使用 CoinGecko API 的 Streamlit 比特币价格示例。
 - `example_output.py`：另一个价格应用示例，包含缓存和更详细的错误处理。
 - `requirements.txt`：本示例所需依赖，与项目根目录的版本要求对齐。
@@ -46,6 +47,14 @@ LLM_MODEL_ID=gpt-4o
 团队按产品经理、工程师、代码审查员、用户代理的顺序轮流对话。`UserProxyAgent` 会等待终端输入；输入反馈可继续对话，输入 `TERMINATE` 可触发结束条件，团队也会在最多 20 轮后结束。用户代理本身不会自动运行或测试生成的代码，需要人工验证结果。
 
 调用模型需要有效的 API 配置和网络连接，可能产生模型服务费用。团队对话生成的代码不会自动写入 `output.py`。
+
+## 运行动态回退示例
+
+```bash
+.venv/bin/python hello-agents/code/chapter6/AutoGenDemo/dynamic_workflow.py
+```
+
+输入需求后，审查员以 JSON 给出通过、需求变更或代码修改的结论。需求变更时，产品经理重新审核当前代码和需求；代码问题直接退回工程师。默认最多回退三次，超限或审查结果格式无效时转交人工处理。审查通过后仍需人工执行和验收代码。可通过 `python -m unittest discover -s hello-agents/code/chapter6/AutoGenDemo -p 'test_dynamic_workflow.py'` 运行不依赖模型的流程测试。
 
 ## 运行价格示例
 
