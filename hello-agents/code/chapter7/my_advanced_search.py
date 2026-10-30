@@ -1,7 +1,8 @@
 # my_advanced_search.py
 import os
-from typing import Optional, List, Dict, Any
+
 from hello_agents import ToolRegistry
+
 
 class MyAdvancedSearchTool:
     """
@@ -21,6 +22,7 @@ class MyAdvancedSearchTool:
         if os.getenv("TAVILY_API_KEY"):
             try:
                 from tavily import TavilyClient
+
                 self.tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
                 self.search_sources.append("tavily")
                 print("✅ Tavily搜索源已启用")
@@ -31,6 +33,7 @@ class MyAdvancedSearchTool:
         if os.getenv("SERPAPI_API_KEY"):
             try:
                 import serpapi
+
                 self.search_sources.append("serpapi")
                 print("✅ SerpApi搜索源已启用")
             except ImportError:
@@ -83,13 +86,13 @@ class MyAdvancedSearchTool:
         """使用Tavily搜索"""
         response = self.tavily_client.search(query=query, max_results=3)
 
-        if response.get('answer'):
+        if response.get("answer"):
             result = f"💡 AI直接答案：{response['answer']}\n\n"
         else:
             result = ""
 
         result += "🔗 相关结果：\n"
-        for i, item in enumerate(response.get('results', [])[:3], 1):
+        for i, item in enumerate(response.get("results", [])[:3], 1):
             result += f"[{i}] {item.get('title', '')}\n"
             result += f"    {item.get('content', '')[:150]}...\n\n"
 
@@ -99,11 +102,9 @@ class MyAdvancedSearchTool:
         """使用SerpApi搜索"""
         import serpapi
 
-        search = serpapi.GoogleSearch({
-            "q": query,
-            "api_key": os.getenv("SERPAPI_API_KEY"),
-            "num": 3
-        })
+        search = serpapi.GoogleSearch(
+            {"q": query, "api_key": os.getenv("SERPAPI_API_KEY"), "num": 3}
+        )
 
         results = search.get_dict()
 
@@ -114,6 +115,7 @@ class MyAdvancedSearchTool:
                 result += f"    {res.get('snippet', '')}\n\n"
 
         return result
+
 
 def create_advanced_search_registry():
     """创建包含高级搜索工具的注册表"""
@@ -126,7 +128,7 @@ def create_advanced_search_registry():
     registry.register_function(
         name="advanced_search",
         description="高级搜索工具，整合Tavily和SerpAPI多个搜索源，提供更全面的搜索结果",
-        func=search_tool.search
+        func=search_tool.search,
     )
 
     return registry
