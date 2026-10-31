@@ -32,8 +32,6 @@ class MyAdvancedSearchTool:
         # 检查SerpApi可用性
         if os.getenv("SERPAPI_API_KEY"):
             try:
-                import serpapi
-
                 self.search_sources.append("serpapi")
                 print("✅ SerpApi搜索源已启用")
             except ImportError:
@@ -51,15 +49,16 @@ class MyAdvancedSearchTool:
 
         # 检查是否有可用的搜索源
         if not self.search_sources:
-            return """❌ 没有可用的搜索源，请配置以下API密钥之一：
+            return """
+                ❌ 没有可用的搜索源，请配置以下API密钥之一：
 
-1. Tavily API: 设置环境变量 TAVILY_API_KEY
-   获取地址: https://tavily.com/
+                1. Tavily API: 设置环境变量 TAVILY_API_KEY
+                获取地址: https://tavily.com/
 
-2. SerpAPI: 设置环境变量 SERPAPI_API_KEY
-   获取地址: https://serpapi.com/
+                2. SerpAPI: 设置环境变量 SERPAPI_API_KEY
+                获取地址: https://serpapi.com/
 
-配置后重新运行程序。"""
+                配置后重新运行程序。"""
 
         print(f"🔍 开始智能搜索: {query}")
 
