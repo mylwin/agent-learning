@@ -56,6 +56,33 @@ python 03_note_tool_operations.py
 python 06_three_day_workflow.py
 ```
 
+### 3. Windows 中文环境（重要）
+
+`TerminalTool` 内部用 `subprocess` 执行命令，Windows 下默认按系统编码（GBK）解码子进程输出。
+当命令输出 UTF-8 中文时会抛 `UnicodeDecodeError`，因为异常发生在读取线程，表现为工具返回空结果，
+或者 `❌ 命令执行失败: object of type 'NoneType' has no len()`。
+
+运行前把默认编码切到 UTF-8 即可，不需要改动任何源码：
+
+```bash
+# cmd
+set PYTHONUTF8=1
+python codebase_maintainer.py
+
+# PowerShell
+$env:PYTHONUTF8=1
+python codebase_maintainer.py
+
+# bash
+export PYTHONUTF8=1
+python codebase_maintainer.py
+```
+
+PyCharm 用户可以在 `Run → Edit Configurations → Environment variables` 中加一行 `PYTHONUTF8=1`。
+
+注意：`dir` 这类 cmd 内建命令仍按 GBK 输出，设了 `PYTHONUTF8=1` 也会失败，建议让 agent 使用
+`ls / find / grep / cat / head / tail` 这些命令。
+
 ## 📖 示例说明
 
 ### 基础示例
