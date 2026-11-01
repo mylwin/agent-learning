@@ -13,6 +13,7 @@ node_modules/
 
 # 学习报告会话文件
 learning_report_session_*.json
+maintainer_report_session_*.json
 
 # 运行时记忆数据库
 memory_data/
@@ -20,3 +21,7 @@ project_notes
 project_notes/*
 data_pipeline_refactoring_notes
 data_pipeline_refactoring_notes/*
+my_flask_app_notes
+my_flask_app_notes/*
+demo_codebase_notes
+demo_codebase_notes/*
