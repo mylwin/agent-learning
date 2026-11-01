@@ -15,6 +15,7 @@ dependencies = [
     "neo4j>=5.0.0",
     "numpy>=2.5.4",
     "openai>=1.37.0",
+    "pandas-stubs>=3.1.0.261029",
     "python-dotenv>=1.2.4",
     "qdrant-client==1.12.1",
     "requests>=2.34.2",
