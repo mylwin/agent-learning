@@ -10,20 +10,26 @@
     "checkpointer",
     "DASHSCOPE",
     "datawhale",
+    "DBSCAN",
     "dotenv",
     "FULLWIDTH",
     "langchain",
     "langgraph",
     "linalg",
+    "markitdown",
     "modelscope",
     "Mult",
     "plotly",
+    "pycache",
+    "Qdrant",
     "Qwen",
     "serp",
     "serpapi",
     "streamlit",
     "Tavily",
+    "UMAP",
     "unaryop",
-    "UNARYOPS"
+    "UNARYOPS",
+    "venv"
   ]
 }

@@ -10,3 +10,9 @@ node_modules/
 
 .git.bak/
 .env example
+
+# 学习报告会话文件
+learning_report_session_*.json
+
+# 运行时记忆数据库
+memory_data/
