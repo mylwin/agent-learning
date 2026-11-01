@@ -274,14 +274,15 @@ def create_gradio_ui():
 
     def chat(message: str, history: List) -> Tuple[str, List]:
         """聊天功能"""
-        if assistant_state["assistant"] is None:
-            return "", history + [[message, "❌ 请先初始化助手并加载文档"]]
-
-        if not message.strip():
+        history = history or []
+        if not message or not message.strip():
             return "", history
 
+        if assistant_state["assistant"] is None:
+            response = "❌ 请先初始化助手并加载文档"
+
         # 判断是技术问题还是回顾问题
-        if any(keyword in message for keyword in ["之前", "学过", "回顾", "历史", "记得"]):
+        elif any(keyword in message for keyword in ["之前", "学过", "回顾", "历史", "记得"]):
             # 回顾学习历程
             response = assistant_state["assistant"].recall(message)
             response = f"🧠 **学习回顾**\n\n{response}"
@@ -290,8 +291,10 @@ def create_gradio_ui():
             response = assistant_state["assistant"].ask(message)
             response = f"💡 **回答**\n\n{response}"
 
-        history.append([message, response])
-        return "", history
+        return "", history + [
+            {"role": "user", "content": message},
+            {"role": "assistant", "content": response},
+        ]
 
     def add_note_ui(note_content: str, concept: str) -> str:
         """添加笔记"""
