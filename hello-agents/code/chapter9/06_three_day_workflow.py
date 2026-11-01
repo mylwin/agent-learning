@@ -10,11 +10,13 @@ CodebaseMaintainer 三天工作流演示
 """
 
 import os
+
 # 配置嵌入模型（三选一）
 # 方案一：TF-IDF（最简单，无需额外依赖）
-os.environ['EMBED_MODEL_TYPE'] = 'tfidf'
-os.environ['EMBED_MODEL_NAME'] = ''  # 重要：必须清空，否则会传递不兼容的参数
+os.environ["EMBED_MODEL_TYPE"] = "tfidf"
+os.environ["EMBED_MODEL_NAME"] = ""  # 重要：必须清空，否则会传递不兼容的参数
 from dotenv import load_dotenv
+
 load_dotenv()
 # 方案二：本地Transformer（需要: pip install sentence-transformers 和 HF token）
 # os.environ['EMBED_MODEL_TYPE'] = 'local'
@@ -25,20 +27,21 @@ load_dotenv()
 # os.environ['EMBED_MODEL_NAME'] = 'text-embedding-v3'
 # os.environ['EMBED_API_KEY'] = 'your_api_key_here'
 
-from hello_agents import HelloAgentsLLM
-from datetime import datetime
 import json
-import time
 
 # 导入 CodebaseMaintainer
 import sys
-sys.path.append('.')
+import time
+
+from hello_agents import HelloAgentsLLM
+
+sys.path.append(".")
 from codebase_maintainer import CodebaseMaintainer
 
 
 def day_1_exploration(maintainer):
     """第一天: 探索代码库（Agentic 方式）
-    
+
     在这个阶段，我们只给 Agent 高层次的目标，
     Agent 会自主决定：
     - 使用哪些 shell 命令探索代码库
@@ -67,7 +70,7 @@ def day_1_exploration(maintainer):
 
 def day_2_analysis(maintainer):
     """第二天: 分析代码质量（Agentic 方式）
-    
+
     Agent 会自主决定：
     - 使用什么方法分析代码质量（grep TODO? 统计行数? 检查复杂度?）
     - 是否需要创建笔记记录问题
@@ -97,7 +100,7 @@ def day_2_analysis(maintainer):
 
 def day_3_planning(maintainer):
     """第三天: 规划重构任务（Agentic 方式）
-    
+
     Agent 会自主决定：
     - 回顾哪些历史笔记
     - 如何组织任务规划
@@ -158,9 +161,9 @@ def demonstrate_cross_session_continuity():
     print("### 第一次会话 (session_1) ###")
     maintainer_1 = CodebaseMaintainer(
         project_name="demo_codebase",
-        #实际使用的时候替换代码路径
+        # 实际使用的时候替换代码路径
         codebase_path="/Users/suntao/Documents/GitHub/hello-agents/code/chapter9/codebase",
-        llm=HelloAgentsLLM()
+        llm=HelloAgentsLLM(),
     )
 
     # 创建一些笔记
@@ -168,7 +171,7 @@ def demonstrate_cross_session_continuity():
         title="代码质量问题",
         content="发现多处 TODO 注释需要实现，特别是数据验证和错误处理部分",
         note_type="blocker",
-        tags=["quality", "urgent"]
+        tags=["quality", "urgent"],
     )
 
     stats_1 = maintainer_1.get_stats()
@@ -181,9 +184,9 @@ def demonstrate_cross_session_continuity():
     print("### 第二次会话 (session_2) ###")
     maintainer_2 = CodebaseMaintainer(
         project_name="demo_codebase",  # 同一个项目
-        #实际使用的时候替换代码路径
+        # 实际使用的时候替换代码路径
         codebase_path="/Users/suntao/Documents/GitHub/hello-agents/code/chapter9/codebase",
-        llm=HelloAgentsLLM()
+        llm=HelloAgentsLLM(),
     )
 
     # 检索之前的笔记
@@ -203,7 +206,7 @@ def demonstrate_cross_session_continuity():
 
 def demonstrate_tool_synergy():
     """演示三大工具的协同（Agentic 方式）
-    
+
     在这个演示中：
     - 我们不再手动调用工具
     - 而是让 Agent 自主决定使用哪些工具
@@ -215,9 +218,9 @@ def demonstrate_tool_synergy():
 
     maintainer = CodebaseMaintainer(
         project_name="synergy_demo",
-        #实际使用的时候替换代码路径
+        # 实际使用的时候替换代码路径
         codebase_path="/Users/suntao/Documents/GitHub/hello-agents/code/chapter9/codebase",
-        llm=HelloAgentsLLM()
+        llm=HelloAgentsLLM(),
     )
 
     # Agent 自主分析并记录
@@ -226,7 +229,7 @@ def demonstrate_tool_synergy():
     print("   1. 使用 TerminalTool 查找 TODO")
     print("   2. 使用 NoteTool 记录发现")
     print("   3. 使用 MemoryTool 记住关键信息\n")
-    
+
     response = maintainer.run(
         "请分析代码库中的所有 TODO 项，并将发现记录到笔记中。"
         "然后告诉我应该优先实现哪些功能。"
@@ -246,7 +249,7 @@ def main():
     print("=" * 80)
     print("CodebaseMaintainer 三天工作流演示（Agentic 版本）")
     print("=" * 80)
-    
+
     print("\n✨ 核心特性：Agent 自主决策")
     print("💡 使用我们在 chapter9 创建的示例代码库")
     print("📁 代码库路径: ./codebase")
@@ -263,9 +266,9 @@ def main():
     # 初始化助手
     maintainer = CodebaseMaintainer(
         project_name="demo_codebase",
-        #实际使用的时候替换代码路径
+        # 实际使用的时候替换代码路径
         codebase_path="/Users/suntao/Documents/GitHub/hello-agents/code/chapter9/codebase",
-        llm=HelloAgentsLLM()
+        llm=HelloAgentsLLM(),
     )
 
     # 执行三天工作流

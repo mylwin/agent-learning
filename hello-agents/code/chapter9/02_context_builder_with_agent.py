@@ -6,13 +6,17 @@ ContextBuilder 与 Agent 集成示例
 2. 自动构建优化的上下文
 3. 记忆管理与上下文构建的协同
 """
+
 from dotenv import load_dotenv
+
 load_dotenv()
-from hello_agents import SimpleAgent, HelloAgentsLLM, ToolRegistry
-from hello_agents.context import ContextBuilder, ContextConfig
-#from hello_agents.tools import MemoryTool, RAGTool
-from hello_agents.core.message import Message
 from datetime import datetime
+
+from hello_agents import HelloAgentsLLM, SimpleAgent
+from hello_agents.context import ContextBuilder, ContextConfig
+
+# from hello_agents.tools import MemoryTool, RAGTool
+from hello_agents.core.message import Message
 
 
 class ContextAwareAgent(SimpleAgent):
@@ -21,9 +25,8 @@ class ContextAwareAgent(SimpleAgent):
     def __init__(self, name: str, llm: HelloAgentsLLM, **kwargs):
         super().__init__(name=name, llm=llm, **kwargs)
 
-        
-        #（Optional）
-        # self.memory_tool = MemoryTool(user_id=kwargs.get("user_id", "default")) 
+        # （Optional）
+        # self.memory_tool = MemoryTool(user_id=kwargs.get("user_id", "default"))
         # self.rag_tool = RAGTool(knowledge_base_path=kwargs.get("knowledge_base_path", "./kb"))
 
         # 初始化上下文构建器
@@ -42,15 +45,15 @@ class ContextAwareAgent(SimpleAgent):
         optimized_context = self.context_builder.build(
             user_query=user_input,
             conversation_history=self.conversation_history,
-            system_instructions=self.system_prompt
+            system_instructions=self.system_prompt,
         )
 
         # 2. 使用优化后的上下文调用 LLM
         messages = [
             {"role": "system", "content": optimized_context},
-            {"role": "user", "content": user_input}
+            {"role": "user", "content": user_input},
         ]
-        response = self.llm.invoke(messages).content
+        response = self.llm.invoke(messages)
 
         # 3. 更新对话历史
         self.conversation_history.append(
@@ -78,13 +81,12 @@ def main():
 
     # 配置 LLM
     from hello_agents.core.llm import HelloAgentsLLM
+
     llm = HelloAgentsLLM()
 
     # 使用示例
     agent = ContextAwareAgent(
-        name="数据分析顾问",
-        llm=llm,
-        system_prompt="你是一位资深的Python数据工程顾问。"
+        name="数据分析顾问", llm=llm, system_prompt="你是一位资深的Python数据工程顾问。"
     )
 
     # 进行对话

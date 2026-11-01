@@ -8,8 +8,8 @@ TerminalTool 使用示例
 4. 代码库分析
 """
 
-import os
 from pathlib import Path
+
 from hello_agents.tools import TerminalTool
 
 # 获取脚本所在目录
@@ -65,7 +65,9 @@ def demo_data_file_analysis():
 
     # 提取和统计产品类别
     print("\n3. 统计产品类别分布:")
-    result = terminal.run({"command": "tail -n +2 sales_2024.csv | cut -d',' -f3 | sort | uniq -c"})
+    result = terminal.run(
+        {"command": "tail -n +2 sales_2024.csv | cut -d',' -f3 | sort | uniq -c"}
+    )
     print(result)
 
 
@@ -84,7 +86,9 @@ def demo_log_analysis():
 
     # 统计错误类型分布
     print("\n2. 统计错误类型分布:")
-    result = terminal.run({"command": "grep ERROR app.log | awk '{print $4}' | sort | uniq -c | sort -rn"})
+    result = terminal.run(
+        {"command": "grep ERROR app.log | awk '{print $4}' | sort | uniq -c | sort -rn"}
+    )
     print(result)
 
     # 查找特定时间段的日志
@@ -103,7 +107,9 @@ def demo_codebase_analysis():
 
     # 统计代码行数
     print("1. 统计代码行数:")
-    result = terminal.run({"command": "find . -name '*.py' -exec wc -l {} + | tail -n 1"})
+    result = terminal.run(
+        {"command": "find . -name '*.py' -exec wc -l {} + | tail -n 1"}
+    )
     print(result)
 
     # 查找所有 TODO 注释

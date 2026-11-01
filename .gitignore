@@ -16,3 +16,7 @@ learning_report_session_*.json
 
 # 运行时记忆数据库
 memory_data/
+project_notes
+project_notes/*
+data_pipeline_refactoring_notes
+data_pipeline_refactoring_notes/*
