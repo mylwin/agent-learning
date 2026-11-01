@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 代码示例 01: MemoryTool基础操作
 展示MemoryTool的核心execute方法和基本操作
