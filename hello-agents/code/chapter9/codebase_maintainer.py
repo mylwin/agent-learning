@@ -10,6 +10,10 @@ CodebaseMaintainer - 代码库维护助手
 关键改进：使用 Agentic 方式，让 agent 自主决定使用哪些工具
 """
 
+from dotenv import load_dotenv
+
+# 加载环境
+load_dotenv()
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import json
@@ -35,10 +39,10 @@ class CodebaseMaintainer:
     """
 
     def __init__(
-        self,
-        project_name: str,
-        codebase_path: str,
-        llm: Optional[HelloAgentsLLM] = None
+            self,
+            project_name: str,
+            codebase_path: str,
+            llm: Optional[HelloAgentsLLM] = None
     ):
         self.project_name = project_name
         self.codebase_path = codebase_path
@@ -114,9 +118,9 @@ class CodebaseMaintainer:
         Returns:
             str: 助手的回答
         """
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"👤 用户: {user_input}")
-        print(f"{'='*80}\n")
+        print(f"{'=' * 80}\n")
 
         # 第一步: 检索相关笔记（为 agent 提供上下文）
         relevant_notes = self._retrieve_relevant_notes(user_input)
@@ -132,10 +136,10 @@ class CodebaseMaintainer:
 
         # 第三步: 让 Agent 自主决策和使用工具
         print("🤖 Agent 正在思考并决定使用哪些工具...\n")
-        
+
         # 更新 agent 的系统提示（包含上下文）
         self.agent.system_prompt = context
-        
+
         # 调用 agent（agent 会自主决定是否使用工具）
         response = self.agent.run(user_input)
 
@@ -146,7 +150,7 @@ class CodebaseMaintainer:
         self._update_history(user_input, response)
 
         print(f"\n🤖 助手: {response}\n")
-        print(f"{'='*80}\n")
+        print(f"{'=' * 80}\n")
 
         return response
 
@@ -154,27 +158,27 @@ class CodebaseMaintainer:
         """构建基础系统提示"""
         return f"""你是 {self.project_name} 项目的代码库维护助手。
 
-你的核心能力:
-1. 使用 TerminalTool 探索代码库
-   - 你可以执行任何 shell 命令: ls, cat, grep, find, git 等
-   - 工作目录: {self.codebase_path}
-   
-2. 使用 NoteTool 记录发现和任务
-   - 创建笔记记录重要发现
-   - 笔记类型: blocker(阻塞问题)、action(行动计划)、task_state(任务状态)、conclusion(结论)
-   
-3. 使用 MemoryTool 存储关键信息
-   - 记住重要的上下文信息
-   - 跨会话保持连贯性
-
-当前会话ID: {self.session_id}
-
-重要原则:
-- 你要自主决定使用哪些工具、执行什么命令
-- 探索代码库时，先了解整体结构，再深入细节
-- 发现重要信息时，主动使用 NoteTool 记录
-- 保持回答的专业性和实用性
-"""
+                你的核心能力:
+                1. 使用 TerminalTool 探索代码库
+                   - 你可以执行任何 shell 命令: ls, cat, grep, find, git 等
+                   - 工作目录: {self.codebase_path}
+                   
+                2. 使用 NoteTool 记录发现和任务
+                   - 创建笔记记录重要发现
+                   - 笔记类型: blocker(阻塞问题)、action(行动计划)、task_state(任务状态)、conclusion(结论)
+                   
+                3. 使用 MemoryTool 存储关键信息
+                   - 记住重要的上下文信息
+                   - 跨会话保持连贯性
+                
+                当前会话ID: {self.session_id}
+                
+                重要原则:
+                - 你要自主决定使用哪些工具、执行什么命令
+                - 探索代码库时，先了解整体结构，再深入细节
+                - 发现重要信息时，主动使用 NoteTool 记录
+                - 保持回答的专业性和实用性
+                """
 
     def _track_tool_usage(self):
         """统计工具使用情况"""
@@ -296,41 +300,40 @@ class CodebaseMaintainer:
 
         mode_hints = {
             "explore": """
-用户当前关注: 探索代码库
-
-建议策略:
-- 考虑使用 TerminalTool 了解代码结构（如 find, ls, tree）
-- 查看关键文件（如 README, 主要模块）
-- 将架构信息记录到笔记方便后续查阅
-""",
+                用户当前关注: 探索代码库
+                
+                建议策略:
+                - 考虑使用 TerminalTool 了解代码结构（如 find, ls, tree）
+                - 查看关键文件（如 README, 主要模块）
+                - 将架构信息记录到笔记方便后续查阅
+                """,
             "analyze": """
-用户当前关注: 分析代码质量
-
-建议策略:
-- 考虑使用 grep 查找潜在问题（TODO, FIXME, BUG）
-- 分析代码复杂度和结构
-- 将发现的问题记录为 blocker 或 action 笔记
-""",
+                用户当前关注: 分析代码质量
+                
+                建议策略:
+                - 考虑使用 grep 查找潜在问题（TODO, FIXME, BUG）
+                - 分析代码复杂度和结构
+                - 将发现的问题记录为 blocker 或 action 笔记
+                """,
             "plan": """
-用户当前关注: 任务规划
-
-建议策略:
-- 回顾历史笔记了解当前进度
-- 基于已有信息制定行动计划
-- 创建或更新 task_state 类型的笔记
-""",
+                用户当前关注: 任务规划
+                
+                建议策略:
+                - 回顾历史笔记了解当前进度
+                - 基于已有信息制定行动计划
+                - 创建或更新 task_state 类型的笔记
+                """,
             "auto": """
-用户当前关注: 自由对话
-
-建议策略:
-- 根据用户需求灵活决策
-- 在需要时主动使用工具获取信息
-- 不需要时可以直接回答
-"""
+                用户当前关注: 自由对话
+                
+                建议策略:
+                - 根据用户需求灵活决策
+                - 在需要时主动使用工具获取信息
+                - 不需要时可以直接回答
+                """
         }
 
         return base_instructions + "\n" + mode_hints.get(mode, mode_hints["auto"])
-
 
     def _update_history(self, user_input: str, response: str):
         """更新对话历史"""
@@ -376,11 +379,11 @@ class CodebaseMaintainer:
         return result
 
     def create_note(
-        self,
-        title: str,
-        content: str,
-        note_type: str = "general",
-        tags: List[str] = None
+            self,
+            title: str,
+            content: str,
+            note_type: str = "general",
+            tags: List[str] = None
     ) -> str:
         """创建笔记"""
         result = self.note_tool.run({
@@ -444,10 +447,12 @@ def main():
     print("=" * 80 + "\n")
 
     # 初始化助手
+    # provider="custom" 强制按 .env 里的 LLM_MODEL_ID / LLM_API_KEY / LLM_BASE_URL 读取：
+    # 本机系统环境变量 OLLAMA_HOST=0.0.0.0:11434 会让自动探测误判成 ollama，从而把 base_url 覆盖成没有协议的地址
     maintainer = CodebaseMaintainer(
         project_name="my_flask_app",
         codebase_path="./my_flask_app",
-        llm=HelloAgentsLLM()
+        llm=HelloAgentsLLM(provider="custom")
     )
 
     # 探索代码库（Agent 自主决定如何探索）
