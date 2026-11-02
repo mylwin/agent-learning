@@ -25,3 +25,9 @@ my_flask_app_notes
 my_flask_app_notes/*
 demo_codebase_notes
 demo_codebase_notes/*
+demo_rag_kb
+demo_rag_kb/*
+advanced_search_kb
+advanced_search_kb/*
+.ruff_cache
+.ruff_cache/*

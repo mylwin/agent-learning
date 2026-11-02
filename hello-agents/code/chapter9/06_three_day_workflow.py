@@ -9,8 +9,6 @@ CodebaseMaintainer 三天工作流演示
 
 """
 
-import os
-
 # 配置嵌入模型（三选一）
 # 方案一：TF-IDF（最简单，无需额外依赖）
 # os.environ["EMBED_MODEL_TYPE"] = "tfidf"
@@ -163,7 +161,7 @@ def demonstrate_cross_session_continuity():
         project_name="demo_codebase",
         # 实际使用的时候替换代码路径
         codebase_path="/Users/suntao/Documents/GitHub/hello-agents/code/chapter9/codebase",
-        llm=HelloAgentsLLM(provider="custom")
+        llm=HelloAgentsLLM(provider="custom"),
     )
 
     # 创建一些笔记
@@ -186,7 +184,7 @@ def demonstrate_cross_session_continuity():
         project_name="demo_codebase",  # 同一个项目
         # 实际使用的时候替换代码路径
         codebase_path="/Users/suntao/Documents/GitHub/hello-agents/code/chapter9/codebase",
-        llm=HelloAgentsLLM(provider="custom")
+        llm=HelloAgentsLLM(provider="custom"),
     )
 
     # 检索之前的笔记
@@ -220,7 +218,7 @@ def demonstrate_tool_synergy():
         project_name="synergy_demo",
         # 实际使用的时候替换代码路径
         codebase_path="/Users/suntao/Documents/GitHub/hello-agents/code/chapter9/codebase",
-        llm=HelloAgentsLLM(provider="custom")
+        llm=HelloAgentsLLM(provider="custom"),
     )
 
     # Agent 自主分析并记录
@@ -267,8 +265,8 @@ def main():
     maintainer = CodebaseMaintainer(
         project_name="demo_codebase",
         # 实际使用的时候替换代码路径
-        codebase_path=r"E:\python-code\agent-learning\hello-agents\code\chapter9\codebase",
-        llm=HelloAgentsLLM(provider="custom")
+        codebase_path="/Users/myl/Documents/python-code/agent-learning/hello-agents/code/chapter9/codebase",
+        llm=HelloAgentsLLM(provider="custom"),
     )
 
     # 执行三天工作流

@@ -10,20 +10,20 @@ CodebaseMaintainer - 代码库维护助手
 关键改进：使用 Agentic 方式，让 agent 自主决定使用哪些工具
 """
 
+import json
+from datetime import datetime
+from typing import Any
+
 from dotenv import load_dotenv
 
-# 加载环境
 load_dotenv()
-from typing import Dict, Any, List, Optional
-from datetime import datetime
-import json
 
 from hello_agents import HelloAgentsLLM
 from hello_agents.agents import FunctionCallAgent
 from hello_agents.context import ContextBuilder, ContextConfig, ContextPacket
+from hello_agents.core.message import Message
 from hello_agents.tools import MemoryTool, NoteTool, TerminalTool
 from hello_agents.tools.registry import ToolRegistry
-from hello_agents.core.message import Message
 
 
 class CodebaseMaintainer:
@@ -31,7 +31,7 @@ class CodebaseMaintainer:
 
     整合 ContextBuilder + NoteTool + TerminalTool + MemoryTool
     实现跨会话的代码库维护任务管理
-    
+
     核心特性：
     - Agent 自主使用工具探索代码库
     - 不预定义工作流，完全基于 agent 决策
@@ -39,10 +39,7 @@ class CodebaseMaintainer:
     """
 
     def __init__(
-            self,
-            project_name: str,
-            codebase_path: str,
-            llm: Optional[HelloAgentsLLM] = None
+        self, project_name: str, codebase_path: str, llm: HelloAgentsLLM | None = None
     ):
         self.project_name = project_name
         self.codebase_path = codebase_path
@@ -52,10 +49,7 @@ class CodebaseMaintainer:
         self.llm = llm or HelloAgentsLLM()
 
         # 初始化工具
-        self.memory_tool = MemoryTool(
-            user_id=project_name,
-            memory_types=["working"]
-        )
+        self.memory_tool = MemoryTool(user_id=project_name, memory_types=["working"])
         self.note_tool = NoteTool(workspace=f"./{project_name}_notes")
         self.terminal_tool = TerminalTool(workspace=codebase_path, timeout=60)
 
@@ -67,8 +61,8 @@ class CodebaseMaintainer:
                 max_tokens=4000,
                 reserve_ratio=0.15,
                 min_relevance=0.2,
-                enable_compression=True
-            )
+                enable_compression=True,
+            ),
         )
 
         # 创建工具注册表并注册工具
@@ -84,11 +78,11 @@ class CodebaseMaintainer:
             system_prompt=self._build_base_system_prompt(),
             tool_registry=self.tool_registry,
             enable_tool_calling=True,
-            max_tool_iterations=30
+            max_tool_iterations=30,
         )
 
         # 对话历史
-        self.conversation_history: List[Message] = []
+        self.conversation_history: list[Message] = []
 
         # 统计信息
         self.stats = {
@@ -96,7 +90,7 @@ class CodebaseMaintainer:
             "commands_executed": 0,
             "notes_created": 0,
             "issues_found": 0,
-            "tool_calls": 0
+            "tool_calls": 0,
         }
 
         print(f"✅ 代码库维护助手已初始化: {project_name} (Agentic Mode)")
@@ -131,7 +125,7 @@ class CodebaseMaintainer:
             user_query=user_input,
             conversation_history=self.conversation_history,
             system_instructions=self._build_system_instructions(mode),
-            additional_packets=note_packets
+            additional_packets=note_packets,
         )
 
         # 第三步: 让 Agent 自主决策和使用工具
@@ -183,34 +177,36 @@ class CodebaseMaintainer:
     def _track_tool_usage(self):
         """统计工具使用情况"""
         # 从 agent 的执行历史中统计
-        if hasattr(self.agent, 'message_history'):
-            for msg in self.agent.message_history[-10:]:  # 只看最近10条
+        message_history = getattr(self.agent, "message_history", None)
+        if message_history is not None:
+            for msg in message_history[-10:]:  # 只看最近10条
                 if msg.role == "tool":
                     self.stats["tool_calls"] += 1
                     # 根据工具名统计
-                    if "terminal" in str(msg.content).lower() or "command" in str(msg.content).lower():
+                    if (
+                        "terminal" in str(msg.content).lower()
+                        or "command" in str(msg.content).lower()
+                    ):
                         self.stats["commands_executed"] += 1
-                    elif "note" in str(msg.content).lower():
-                        if "create" in str(msg.content).lower():
-                            self.stats["notes_created"] += 1
+                    elif (
+                        "note" in str(msg.content).lower()
+                        and "create" in str(msg.content).lower()
+                    ):
+                        self.stats["notes_created"] += 1
 
-    def _retrieve_relevant_notes(self, query: str, limit: int = 3) -> List[Dict]:
+    def _retrieve_relevant_notes(self, query: str, limit: int = 3) -> list[dict]:
         """检索相关笔记"""
         try:
             # 优先检索 blocker
-            blockers_raw = self.note_tool.run({
-                "action": "list",
-                "note_type": "blocker",
-                "limit": 2
-            })
+            blockers_raw = self.note_tool.run(
+                {"action": "list", "note_type": "blocker", "limit": 2}
+            )
             blockers = self._normalize_note_results(blockers_raw)
 
             # 搜索相关笔记
-            search_results_raw = self.note_tool.run({
-                "action": "search",
-                "query": query,
-                "limit": limit
-            })
+            search_results_raw = self.note_tool.run(
+                {"action": "search", "query": query, "limit": limit}
+            )
             search_results = self._normalize_note_results(search_results_raw)
 
             # 合并去重
@@ -218,7 +214,7 @@ class CodebaseMaintainer:
             for note in blockers + search_results:
                 if not isinstance(note, dict):
                     continue
-                note_id = note.get('note_id') or note.get('id')
+                note_id = note.get("note_id") or note.get("id")
                 if not note_id:
                     continue
                 if note_id not in all_notes:
@@ -226,11 +222,11 @@ class CodebaseMaintainer:
 
             return list(all_notes.values())[:limit]
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - 笔记工具失败时允许继续会话
             print(f"[WARNING] 笔记检索失败: {e}")
             return []
 
-    def _normalize_note_results(self, result: Any) -> List[Dict]:
+    def _normalize_note_results(self, result: Any) -> list[dict]:
         """将笔记工具的返回值转换为笔记字典列表"""
         if not result:
             return []
@@ -245,17 +241,17 @@ class CodebaseMaintainer:
             text = result.strip()
             if not text:
                 return []
-            if text.startswith("{") or text.startswith("["):
+            if text.startswith(("{", "[")):
                 try:
                     parsed = json.loads(text)
                     return self._normalize_note_results(parsed)
-                except Exception:
+                except json.JSONDecodeError:
                     return []
             return []
 
         return []
 
-    def _notes_to_packets(self, notes: List[Dict]) -> List[ContextPacket]:
+    def _notes_to_packets(self, notes: list[dict]) -> list[ContextPacket]:
         """将笔记转换为上下文包"""
         packets = []
 
@@ -267,30 +263,34 @@ class CodebaseMaintainer:
                 "blocker": 0.9,
                 "action": 0.8,
                 "task_state": 0.75,
-                "conclusion": 0.7
+                "conclusion": 0.7,
             }
 
-            note_type = note.get('type', 'general')
+            note_type = note.get("type", "general")
             relevance = relevance_map.get(note_type, 0.6)
 
             content = f"[笔记:{note.get('title', 'Untitled')}]\n类型: {note_type}\n\n{note.get('content', '')}"
-            updated_at = note.get('updated_at')
+            updated_at = note.get("updated_at")
             try:
-                note_timestamp = datetime.fromisoformat(updated_at) if updated_at else datetime.now()
+                note_timestamp = (
+                    datetime.fromisoformat(updated_at) if updated_at else datetime.now()
+                )
             except (ValueError, TypeError):
                 note_timestamp = datetime.now()
 
-            packets.append(ContextPacket(
-                content=content,
-                timestamp=note_timestamp,
-                token_count=len(content) // 4,
-                relevance_score=relevance,
-                metadata={
-                    "type": "note",
-                    "note_type": note_type,
-                    "note_id": note.get('note_id') or note.get('id')
-                }
-            ))
+            packets.append(
+                ContextPacket(
+                    content=content,
+                    timestamp=note_timestamp,
+                    token_count=len(content) // 4,
+                    relevance_score=relevance,
+                    metadata={
+                        "type": "note",
+                        "note_type": note_type,
+                        "note_id": note.get("note_id") or note.get("id"),
+                    },
+                )
+            )
 
         return packets
 
@@ -325,12 +325,12 @@ class CodebaseMaintainer:
                 """,
             "auto": """
                 用户当前关注: 自由对话
-                
+
                 建议策略:
                 - 根据用户需求灵活决策
                 - 在需要时主动使用工具获取信息
                 - 不需要时可以直接回答
-                """
+                """,
         }
 
         return base_instructions + "\n" + mode_hints.get(mode, mode_hints["auto"])
@@ -352,22 +352,22 @@ class CodebaseMaintainer:
 
     def explore(self, target: str = ".") -> str:
         """探索代码库（Agentic 方式）
-        
+
         Agent 会自主决定使用哪些命令来探索代码库
         """
         return self.run(f"请探索 {target} 的代码结构，了解项目组织方式", mode="explore")
 
     def analyze(self, focus: str = "") -> str:
         """分析代码质量（Agentic 方式）
-        
+
         Agent 会自主决定如何分析代码质量
         """
-        query = f"请分析代码质量" + (f"，重点关注{focus}" if focus else "")
+        query = "请分析代码质量" + (f"，重点关注{focus}" if focus else "")
         return self.run(query, mode="analyze")
 
     def plan_next_steps(self) -> str:
         """规划下一步任务（Agentic 方式）
-        
+
         Agent 会查看历史笔记并规划下一步
         """
         return self.run("根据我们之前的分析和当前进度，规划下一步任务", mode="plan")
@@ -379,54 +379,56 @@ class CodebaseMaintainer:
         return result
 
     def create_note(
-            self,
-            title: str,
-            content: str,
-            note_type: str = "general",
-            tags: List[str] = None
+        self,
+        title: str,
+        content: str,
+        note_type: str = "general",
+        tags: list[str] | None = None,
     ) -> str:
         """创建笔记"""
-        result = self.note_tool.run({
-            "action": "create",
-            "title": title,
-            "content": content,
-            "note_type": note_type,
-            "tags": tags or [self.project_name]
-        })
+        result = self.note_tool.run(
+            {
+                "action": "create",
+                "title": title,
+                "content": content,
+                "note_type": note_type,
+                "tags": tags or [self.project_name],
+            }
+        )
         self.stats["notes_created"] += 1
         return result
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """获取统计信息"""
         duration = (datetime.now() - self.stats["session_start"]).total_seconds()
 
         # 获取笔记摘要
         try:
             note_summary = self.note_tool.run({"action": "summary"})
-        except:
+        except Exception:  # noqa: BLE001 - 统计摘要失败时使用空结果
             note_summary = {}
 
         return {
             "session_info": {
                 "session_id": self.session_id,
                 "project": self.project_name,
-                "duration_seconds": duration
+                "duration_seconds": duration,
             },
             "activity": {
                 "commands_executed": self.stats["commands_executed"],
                 "notes_created": self.stats["notes_created"],
-                "issues_found": self.stats["issues_found"]
+                "issues_found": self.stats["issues_found"],
             },
-            "notes": note_summary
+            "notes": note_summary,
         }
 
-    def generate_report(self, save_to_file: bool = True) -> Dict[str, Any]:
+    def generate_report(self, save_to_file: bool = True) -> dict[str, Any]:
         """生成会话报告"""
         report = self.get_stats()
 
         if save_to_file:
             report_file = f"maintainer_report_{self.session_id}.json"
-            with open(report_file, 'w', encoding='utf-8') as f:
+            with open(report_file, "w", encoding="utf-8") as f:
                 json.dump(report, f, ensure_ascii=False, indent=2, default=str)
             report["report_file"] = report_file
             print(f"📄 报告已保存: {report_file}")
@@ -436,7 +438,7 @@ class CodebaseMaintainer:
 
 def main():
     """主函数 - 演示 CodebaseMaintainer 的使用（Agentic 版本）
-    
+
     在这个版本中：
     - Agent 自主决定使用哪些工具
     - 不预定义工作流
@@ -452,20 +454,20 @@ def main():
     maintainer = CodebaseMaintainer(
         project_name="my_flask_app",
         codebase_path="./my_flask_app",
-        llm=HelloAgentsLLM(provider="custom")
+        llm=HelloAgentsLLM(provider="custom"),
     )
 
     # 探索代码库（Agent 自主决定如何探索）
     print("\n### 探索代码库（Agent 自主探索）###")
-    response = maintainer.explore()
+    maintainer.explore()
 
     # 分析代码质量（Agent 自主决定分析方法）
     print("\n### 分析代码质量（Agent 自主分析）###")
-    response = maintainer.analyze()
+    maintainer.analyze()
 
     # 规划下一步（Agent 基于历史信息规划）
     print("\n### 规划下一步任务（Agent 自主规划）###")
-    response = maintainer.plan_next_steps()
+    maintainer.plan_next_steps()
 
     # 生成报告
     print("\n### 生成会话报告 ###")
