@@ -4,14 +4,16 @@ A2A 协议 + HelloAgents SimpleAgent 集成案例
 展示如何将 A2A 协议的 Agent 作为工具集成到 SimpleAgent 中
 """
 
-from textwrap import dedent
+from dotenv import load_dotenv
 
-from hello_agents.protocols import A2AServer, A2AClient
-from hello_agents import SimpleAgent, HelloAgentsLLM
-from hello_agents.tools import ToolRegistry, Tool, ToolParameter
+load_dotenv()
 import threading
 import time
-from typing import Dict, Any
+from textwrap import dedent
+
+from hello_agents import HelloAgentsLLM, SimpleAgent
+from hello_agents.protocols import A2AClient, A2AServer
+from hello_agents.tools import Tool, ToolParameter
 
 # ============================================================
 # 1. 创建专业 A2A Agent 服务
@@ -19,51 +21,53 @@ from typing import Dict, Any
 
 # 技术专家 Agent
 tech_expert = A2AServer(
-    name="tech_expert",
-    description="技术专家，回答技术相关问题",
-    version="1.0.0"
+    name="tech_expert", description="技术专家，回答技术相关问题", version="1.0.0"
 )
+
 
 @tech_expert.skill("answer")
 def answer_tech_question(text: str) -> str:
     """回答技术问题"""
     import re
-    match = re.search(r'answer\s+(.+)', text, re.IGNORECASE)
+
+    match = re.search(r"answer\s+(.+)", text, re.IGNORECASE)
     question = match.group(1).strip() if match else text
-    
+
     print(f"  [技术专家] 回答问题: {question}")
     return f"技术回答：关于'{question}'，这是一个技术问题的专业解答..."
 
+
 # 销售顾问 Agent
 sales_advisor = A2AServer(
-    name="sales_advisor",
-    description="销售顾问，回答销售问题",
-    version="1.0.0"
+    name="sales_advisor", description="销售顾问，回答销售问题", version="1.0.0"
 )
+
 
 @sales_advisor.skill("answer")
 def answer_sales_question(text: str) -> str:
     """回答销售问题"""
     import re
-    match = re.search(r'answer\s+(.+)', text, re.IGNORECASE)
+
+    match = re.search(r"answer\s+(.+)", text, re.IGNORECASE)
     question = match.group(1).strip() if match else text
-    
+
     print(f"  [销售顾问] 回答问题: {question}")
     return f"销售回答：关于'{question}'，我们有特别优惠..."
+
 
 # ============================================================
 # 2. 启动 A2A Agent 服务
 # ============================================================
 
-print("="*60)
+print("=" * 60)
 print("🚀 启动专业 Agent 服务")
-print("="*60)
+print("=" * 60)
 
-threading.Thread(target=lambda: tech_expert.run(port=6000), daemon=True).start()
-threading.Thread(target=lambda: sales_advisor.run(port=6001), daemon=True).start()
+threading.Thread(target=lambda: tech_expert.run(host="127.0.0.1", port=6000), daemon=True).start()
+threading.Thread(target=lambda: sales_advisor.run(host="127.0.0.1", port=6001), daemon=True).start()
 
-print("✓ 技术专家 Agent 启动在 http://localhost:6000")
-print("✓ 销售顾问 Agent 启动在 http://localhost:6001")
+print("✓ 技术专家 Agent 启动在 http://127.0.0.1:6000")
+print("✓ 销售顾问 Agent 启动在 http://127.0.0.1:6001")
 
 print("\n⏳ 等待服务启动...")
 time.sleep(3)
@@ -72,10 +76,13 @@ time.sleep(3)
 # 3. 创建 A2A 工具（封装 A2A Agent 为 Tool）
 # ============================================================
 
+
 class A2ATool(Tool):
     """将 A2A Agent 封装为 HelloAgents Tool"""
 
-    def __init__(self, name: str, description: str, agent_url: str, skill_name: str = "answer"):
+    def __init__(
+        self, name: str, description: str, agent_url: str, skill_name: str = "answer"
+    ):
         self.agent_url = agent_url
         self.skill_name = skill_name
         self.client = A2AClient(agent_url)
@@ -83,10 +90,7 @@ class A2ATool(Tool):
         self._description = description
         self._parameters = [
             ToolParameter(
-                name="question",
-                type="string",
-                description="要问的问题",
-                required=True
+                name="question", type="string", description="要问的问题", required=True
             )
         ]
 
@@ -102,35 +106,40 @@ class A2ATool(Tool):
         """获取工具参数"""
         return self._parameters
 
-    def run(self, **kwargs) -> str:
-        """执行工具"""
-        question = kwargs.get('question', '')
+    def run(self, parameters: dict) -> str:
+        """接收 SimpleAgent 传入的参数字典，并请求专家。"""
+        question = parameters.get("question", "").strip()
+        if not question:
+            return "错误：缺少 question 参数"
+        print(f"  [调用专家] {self.name}: {question}")
         result = self.client.execute_skill(self.skill_name, f"answer {question}")
-        if result.get('status') == 'success':
-            return result.get('result', 'No response')
-        else:
-            return f"Error: {result.get('error', 'Unknown error')}"
+        if result.get("status") == "success":
+            return result.get("result", "No response")
+        error = result.get("error", "Unknown error")
+        print(f"  [专家调用失败] {self.name}: {error}")
+        return f"Error: {error}"
+
 
 # 创建工具
 tech_tool = A2ATool(
     name="tech_expert",
     description="技术专家，回答技术相关问题",
-    agent_url="http://localhost:6000"
+    agent_url="http://127.0.0.1:6000",
 )
 
 sales_tool = A2ATool(
     name="sales_advisor",
     description="销售顾问，回答销售相关问题",
-    agent_url="http://localhost:6001"
+    agent_url="http://127.0.0.1:6001",
 )
 
 # ============================================================
 # 4. 创建 SimpleAgent（使用 A2A 工具）
 # ============================================================
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("🤖 创建接待员 SimpleAgent")
-print("="*60)
+print("=" * 60)
 
 # 初始化 LLM
 llm = HelloAgentsLLM()
@@ -139,16 +148,17 @@ llm = HelloAgentsLLM()
 receptionist = SimpleAgent(
     name="接待员",
     llm=llm,
-    system_prompt=dedent("""你是客服接待员，负责：
-1. 分析客户问题类型（技术问题 or 销售问题）
-2. 使用合适的工具（tech_expert 或 sales_advisor）获取答案
-3. 整理答案并返回给客户
+    system_prompt=dedent("""
+        你是客服接待员，负责：
+        1. 分析客户问题类型（技术问题 or 销售问题）
+        2. 使用合适的工具（tech_expert 或 sales_advisor）获取答案
+        3. 整理答案并返回给客户
 
-可用工具：
-- tech_expert: 回答技术问题
-- sales_advisor: 回答销售问题
+        可用工具：
+        - tech_expert: 回答技术问题
+        - sales_advisor: 回答销售问题
 
-请保持礼貌和专业。""")
+        请保持礼貌和专业。"""),
 )
 
 # 添加 A2A 工具
@@ -162,15 +172,15 @@ print("✓ 已集成 A2A 工具: tech_expert, sales_advisor")
 # 5. 测试集成系统
 # ============================================================
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("🧪 测试 A2A + SimpleAgent 集成")
-print("="*60)
+print("=" * 60)
 
 # 测试问题
 test_questions = [
     "你们的产品有什么优惠活动吗？",
     "如何配置服务器的SSL证书？",
-    "我想了解一下价格方案"
+    "我想了解一下价格方案",
 ]
 
 for i, question in enumerate(test_questions, 1):
@@ -182,8 +192,9 @@ for i, question in enumerate(test_questions, 1):
         response = receptionist.run(question)
         print(f"回答: {response}")
     except Exception as e:
-        print(f"错误: {str(e)}")
+        print(f"错误: {e!s}")
         import traceback
+
         traceback.print_exc()
 
     print()
@@ -192,9 +203,9 @@ for i, question in enumerate(test_questions, 1):
 # 6. 保持服务运行
 # ============================================================
 
-print("="*60)
+print("=" * 60)
 print("💡 系统仍在运行")
-print("="*60)
+print("=" * 60)
 print("你可以继续测试或按 Ctrl+C 停止\n")
 
 try:
@@ -202,4 +213,3 @@ try:
         time.sleep(1)
 except KeyboardInterrupt:
     print("\n\n✅ 系统已停止")
-

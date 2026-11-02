@@ -1,16 +1,17 @@
-from hello_agents.protocols.a2a.implementation import A2AServer, A2A_AVAILABLE
+from hello_agents.protocols.a2a.implementation import A2AServer
+
 
 def create_custom_agent():
     """创建自定义智能体"""
-    if not A2A_AVAILABLE:
-        print("请先安装 A2A SDK: pip install a2a-sdk")
-        return None
+    # if not A2A_AVAILABLE:
+    #     print("请先安装 A2A SDK: pip install a2a-sdk")
+    #     return None
 
     # 创建智能体
     agent = A2AServer(
         name="my-custom-agent",
         description="我的自定义智能体",
-        capabilities={"custom": ["skill1", "skill2"]}
+        capabilities={"custom": ["skill1", "skill2"]},
     )
 
     # 添加技能
@@ -24,7 +25,7 @@ def create_custom_agent():
         """简单计算"""
         try:
             # 安全的计算（仅支持基本运算）
-            allowed_chars = set('0123456789+-*/(). ')
+            allowed_chars = set("0123456789+-*/(). ")
             if all(c in allowed_chars for c in expression):
                 result = eval(expression)
                 return f"计算结果: {expression} = {result}"
@@ -34,6 +35,7 @@ def create_custom_agent():
             return f"计算错误: {e}"
 
     return agent
+
 
 # 创建并测试自定义智能体
 custom_agent = create_custom_agent()

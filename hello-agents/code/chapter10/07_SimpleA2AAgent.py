@@ -1,11 +1,8 @@
-from hello_agents.protocols.a2a.implementation import A2AServer, A2A_AVAILABLE
+from hello_agents.protocols.a2a.implementation import A2AServer
+
 
 def create_calculator_agent():
     """创建一个计算器智能体"""
-    if not A2A_AVAILABLE:
-        print("❌ A2A SDK 未安装，请运行: pip install a2a-sdk")
-        return None
-
     print("🧮 创建计算器智能体")
 
     # 创建 A2A 服务器
@@ -15,8 +12,8 @@ def create_calculator_agent():
         version="1.0.0",
         capabilities={
             "math": ["addition", "subtraction", "multiplication", "division"],
-            "advanced": ["power", "sqrt", "factorial"]
-        }
+            "advanced": ["power", "sqrt", "factorial"],
+        },
     )
 
     # 添加基础计算技能
@@ -59,16 +56,13 @@ def create_calculator_agent():
     print(f"✅ 计算器智能体创建成功，支持技能: {list(calculator.skills.keys())}")
     return calculator
 
+
 # 创建智能体
 calc_agent = create_calculator_agent()
 if calc_agent:
     # 测试技能
     print("\n🧪 测试智能体技能:")
-    test_queries = [
-        "获取信息",
-        "计算 10 + 5",
-        "计算 6 * 7"
-    ]
+    test_queries = ["获取信息", "计算 10 + 5", "计算 6 * 7"]
 
     for query in test_queries:
         if "信息" in query:
