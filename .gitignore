@@ -1,33 +1,33 @@
+# 本地环境和编辑器
 .venv/
 .idea/
-__pycache__/
-node_modules/
-
 .env
 .env.*
 !.env.example
 .env copy
-
-.git.bak/
 .env example
+.git.bak/
 
-# 学习报告会话文件
-learning_report_session_*.json
-maintainer_report_session_*.json
+# Python 缓存与测试产物
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
 
-# 运行时记忆数据库
-memory_data/
-project_notes
-project_notes/*
-data_pipeline_refactoring_notes
-data_pipeline_refactoring_notes/*
-my_flask_app_notes
-my_flask_app_notes/*
-demo_codebase_notes
-demo_codebase_notes/*
-demo_rag_kb
-demo_rag_kb/*
-advanced_search_kb
-advanced_search_kb/*
-.ruff_cache
-.ruff_cache/*
+# 系统文件与前端依赖
+.DS_Store
+node_modules/
+
+# Hello Agents 运行产物
+/hello-agents/run_result/
+
+# 旧版示例在仓库根目录生成的产物
+/learning_report_session_*.json
+/maintainer_report_session_*.json
+/memory_data/
+/project_notes/
+/data_pipeline_refactoring_notes/
+/my_flask_app_notes/
+/demo_codebase_notes/
+/demo_rag_kb/
+/advanced_search_kb/
