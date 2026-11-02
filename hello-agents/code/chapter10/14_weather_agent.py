@@ -2,12 +2,14 @@
 
 from textwrap import dedent
 
-import os
 from dotenv import load_dotenv
-from hello_agents import SimpleAgent, HelloAgentsLLM
-from hello_agents.tools import MCPTool
 
 load_dotenv()
+
+import os
+
+from hello_agents import HelloAgentsLLM, SimpleAgent
+from hello_agents.tools import MCPTool
 
 
 def create_weather_assistant():
@@ -17,9 +19,10 @@ def create_weather_assistant():
     assistant = SimpleAgent(
         name="天气助手",
         llm=llm,
-        system_prompt=dedent("""你是天气助手，可以查询城市天气。
-使用 mcp_get_weather 工具查询天气，支持中文城市名。
-""")
+        system_prompt=dedent("""
+            你是天气助手，可以查询城市天气。
+            使用 mcp_get_weather 工具查询天气，支持中文城市名。
+        """).strip(),
     )
 
     # 添加天气 MCP 工具
@@ -52,7 +55,7 @@ def interactive():
 
     while True:
         user_input = input("\n你: ").strip()
-        if user_input.lower() in ['quit', 'exit']:
+        if user_input.lower() in ["quit", "exit"]:
             break
         response = assistant.run(user_input)
         print(f"助手: {response}")
@@ -60,6 +63,7 @@ def interactive():
 
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) > 1 and sys.argv[1] == "demo":
         demo()
     else:

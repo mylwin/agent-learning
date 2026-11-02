@@ -13,6 +13,7 @@
     "DBSCAN",
     "dotenv",
     "FULLWIDTH",
+    "helloagents",
     "huggingface",
     "langchain",
     "langgraph",
@@ -28,6 +29,7 @@
     "Qwen",
     "serp",
     "serpapi",
+    "Shenzhen",
     "Streamable",
     "streamlit",
     "Tavily",
@@ -35,6 +37,7 @@
     "UMAP",
     "unaryop",
     "UNARYOPS",
-    "venv"
+    "venv",
+    "wttr"
   ]
 }
