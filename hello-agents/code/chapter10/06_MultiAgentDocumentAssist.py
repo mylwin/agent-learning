@@ -6,15 +6,12 @@
 - Agent2：文档生成专家
 """
 
-import sys as _run_sys
 from pathlib import Path as _RunPath
 from textwrap import dedent
 
-_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
 from dotenv import load_dotenv
 from hello_agents import HelloAgentsLLM, SimpleAgent
 from hello_agents.tools import MCPTool
-from run_paths import result_path
 
 CHAPTER_DIR = _RunPath(__file__).resolve().parent
 
@@ -126,19 +123,13 @@ try:
 
     # 步骤3：保存报告
     print("\n【步骤5】保存报告到文件...")
-    import os
-
     try:
-        with open(
-            result_path(str(CHAPTER_DIR / "chapter10" / "report.md")),
-            "w",
-            encoding="utf-8",
-        ) as f:
-            f.write(report_content)
-        print("✅ 报告已保存到 report.md")
+        report_path = CHAPTER_DIR / "report.md"
+        report_path.write_text(report_content, encoding="utf-8")
+        print(f"✅ 报告已保存到 {report_path}")
 
-        # 验证文件
-        file_size = os.path.getsize("report.md")
+        # 验证保存的文件
+        file_size = report_path.stat().st_size
         print(f"✅ 文件大小: {file_size} 字节")
     except Exception as e:
         print(f"❌ 保存失败: {e}")
