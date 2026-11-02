@@ -18,6 +18,7 @@
     "langgraph",
     "linalg",
     "markitdown",
+    "modelcontextprotocol",
     "modelscope",
     "Mult",
     "OLLAMA",

@@ -1,14 +1,19 @@
 import asyncio
+
 from hello_agents.protocols import MCPClient
+
 
 async def connect_to_server():
     # 方式1：连接到社区提供的文件系统服务器
     # npx会自动下载并运行@modelcontextprotocol/server-filesystem包
-    client = MCPClient([
-        "npx", "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "."  # 指定根目录
-    ])
+    client = MCPClient(
+        [
+            "npx",
+            "-y",
+            "@modelcontextprotocol/server-filesystem",
+            ".",  # 指定根目录
+        ]
+    )
 
     # 使用async with确保连接正确关闭
     async with client:
@@ -21,6 +26,7 @@ async def connect_to_server():
     async with client:
         # 使用client...
         pass
+
 
 # 运行异步函数
 asyncio.run(connect_to_server())
@@ -39,14 +45,15 @@ async def discover_tools():
             print(f"描述: {tool.get('description', '无描述')}")
 
             # 打印参数信息
-            if 'inputSchema' in tool:
-                schema = tool['inputSchema']
-                if 'properties' in schema:
+            if "inputSchema" in tool:
+                schema = tool["inputSchema"]
+                if "properties" in schema:
                     print("参数:")
-                    for param_name, param_info in schema['properties'].items():
-                        param_type = param_info.get('type', 'any')
-                        param_desc = param_info.get('description', '')
+                    for param_name, param_info in schema["properties"].items():
+                        param_type = param_info.get("type", "any")
+                        param_desc = param_info.get("description", "")
                         print(f"  - {param_name} ({param_type}): {param_desc}")
+
 
 asyncio.run(discover_tools())
 
@@ -78,13 +85,14 @@ async def use_tools():
         print(f"当前目录文件：{result}")
 
         # 写入文件
-        result = await client.call_tool("write_file", {
-            "path": "output.txt",
-            "content": "Hello from MCP!"
-        })
+        result = await client.call_tool(
+            "write_file", {"path": "output.txt", "content": "Hello from MCP!"}
+        )
         print(f"写入结果：{result}")
 
+
 asyncio.run(use_tools())
+
 
 async def safe_tool_call():
     client = MCPClient(["npx", "-y", "@modelcontextprotocol/server-filesystem", "."])
@@ -97,5 +105,6 @@ async def safe_tool_call():
         except Exception as e:
             print(f"工具调用失败: {e}")
             # 可以选择重试、使用默认值或向用户报告错误
+
 
 asyncio.run(safe_tool_call())
