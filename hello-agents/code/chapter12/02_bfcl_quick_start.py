@@ -6,6 +6,11 @@
 这是最简单的BFCL评估方式，一行代码完成评估、报告生成和官方评估。
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path
+
 from hello_agents import SimpleAgent, HelloAgentsLLM
 from hello_agents.tools import BFCLEvaluationTool
 
@@ -14,7 +19,10 @@ llm = HelloAgentsLLM()
 agent = SimpleAgent(name="TestAgent", llm=llm)
 
 # 2. 创建BFCL评估工具
-bfcl_tool = BFCLEvaluationTool()
+bfcl_tool = BFCLEvaluationTool(
+    bfcl_data_dir=str(_RunPath.cwd() / "temp_gorilla/berkeley-function-call-leaderboard/bfcl_eval/data"),
+    project_root=result_path("chapter12", "bfcl_runtime"),
+)
 
 # 3. 运行评估（自动完成所有步骤）
 results = bfcl_tool.run(

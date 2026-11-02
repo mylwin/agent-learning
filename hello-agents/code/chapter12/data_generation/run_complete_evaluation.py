@@ -19,6 +19,11 @@ python data_generation/run_complete_evaluation.py 30 3.0
 - 数据集来源：math-ai/aime25（JSONL格式）
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[2]))
+from run_paths import result_path, memory_config
+
 import json
 import os
 import sys
@@ -56,7 +61,7 @@ def run_complete_evaluation(
     generator = AIMEGenerator(delay_seconds=delay_seconds)
     generated_data_path = generator.generate_and_save(
         num_problems=num_problems,
-        output_dir="data_generation/generated_data"
+        output_dir=result_path("chapter12", "data_generation", "generated_data")
     )
 
     print(f"\n✅ 步骤1完成！生成数据保存在: {generated_data_path}")
@@ -64,7 +69,7 @@ def run_complete_evaluation(
     # ========== 步骤2: 评估 ==========
     # 创建评估结果目录
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    evaluation_dir = f"data_generation/evaluation_results/{timestamp}"
+    evaluation_dir = result_path("chapter12", "data_generation", "evaluation_results", timestamp)
     os.makedirs(evaluation_dir, exist_ok=True)
     os.makedirs(os.path.join(evaluation_dir, "llm_judge"), exist_ok=True)
     os.makedirs(os.path.join(evaluation_dir, "win_rate"), exist_ok=True)

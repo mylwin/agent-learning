@@ -8,6 +8,11 @@
 3. 支持详细日志输出
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 import os
 
@@ -186,7 +191,7 @@ class AgenticRLPipeline:
         self.log("=" * 50)
         
         # 保存训练结果
-        results_path = "training_results.json"
+        results_path = result_path("chapter11", "training_results.json")
         with open(results_path, 'w') as f:
             json.dump(self.results, f, indent=2)
         
@@ -232,12 +237,12 @@ if __name__ == "__main__":
             "max_samples": 100  # 使用100个样本快速测试
         },
         "sft": {
-            "output_dir": "./models/sft_model",
+            "output_dir": result_path("chapter11", "models", "sft_model"),
             "num_epochs": 2,
             "batch_size": 4,
         },
         "grpo": {
-            "output_dir": "./models/grpo_model",
+            "output_dir": result_path("chapter11", "models", "grpo_model"),
             "num_epochs": 2,
             "batch_size": 2,
         },
@@ -253,10 +258,10 @@ if __name__ == "__main__":
     }
     
     # 保存配置
-    with open("config.json", 'w') as f:
+    with open(result_path("chapter11", "config.json"), 'w') as f:
         json.dump(config, f, indent=2)
     
     # 运行训练流程
-    pipeline = AgenticRLPipeline("config.json")
+    pipeline = AgenticRLPipeline(result_path("chapter11", "config.json"))
     pipeline.run()
 

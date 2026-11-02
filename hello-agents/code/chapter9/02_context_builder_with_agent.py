@@ -7,6 +7,11 @@ ContextBuilder 与 Agent 集成示例
 3. 记忆管理与上下文构建的协同
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,7 +31,7 @@ class ContextAwareAgent(SimpleAgent):
         super().__init__(name=name, llm=llm, **kwargs)
 
         # （Optional）
-        # self.memory_tool = MemoryTool(user_id=kwargs.get("user_id", "default"))
+        # self.memory_tool = MemoryTool(memory_config=memory_config(), user_id=kwargs.get("user_id", "default"))
         # self.rag_tool = RAGTool(knowledge_base_path=kwargs.get("knowledge_base_path", "./kb"))
 
         # 初始化上下文构建器

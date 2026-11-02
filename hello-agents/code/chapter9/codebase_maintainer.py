@@ -10,6 +10,11 @@ CodebaseMaintainer - 代码库维护助手
 关键改进：使用 Agentic 方式，让 agent 自主决定使用哪些工具
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import json
 from datetime import datetime
 from typing import Any
@@ -49,8 +54,8 @@ class CodebaseMaintainer:
         self.llm = llm or HelloAgentsLLM()
 
         # 初始化工具
-        self.memory_tool = MemoryTool(user_id=project_name, memory_types=["working"])
-        self.note_tool = NoteTool(workspace=f"./{project_name}_notes")
+        self.memory_tool = MemoryTool(memory_config=memory_config(), user_id=project_name, memory_types=["working"])
+        self.note_tool = NoteTool(workspace=result_path("chapter9", "notes", f"{project_name}_notes"))
         self.terminal_tool = TerminalTool(workspace=codebase_path, timeout=60)
 
         # 初始化上下文构建器
@@ -427,7 +432,7 @@ class CodebaseMaintainer:
         report = self.get_stats()
 
         if save_to_file:
-            report_file = f"maintainer_report_{self.session_id}.json"
+            report_file = result_path("chapter9", "reports", f"maintainer_report_{self.session_id}.json")
             with open(report_file, "w", encoding="utf-8") as f:
                 json.dump(report, f, ensure_ascii=False, indent=2, default=str)
             report["report_file"] = report_file

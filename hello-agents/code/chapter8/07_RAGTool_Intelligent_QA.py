@@ -3,6 +3,11 @@
 展示完整的检索→上下文构建→答案生成流程
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import time
 
 from dotenv import load_dotenv
@@ -16,7 +21,7 @@ class IntelligentQADemo:
 
     def __init__(self):
         self.rag_tool = RAGTool(
-            knowledge_base_path="./qa_demo_kb", rag_namespace="intelligent_qa_demo"
+            knowledge_base_path=result_path("chapter8", "knowledge_bases", "qa_demo_kb"), rag_namespace="intelligent_qa_demo"
         )
         self._setup_knowledge_base()
 

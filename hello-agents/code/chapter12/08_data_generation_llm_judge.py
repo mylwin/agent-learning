@@ -12,6 +12,11 @@ LLM Judge从4个维度评估题目质量：
 4. 完整性（Completeness）：题目是否完整
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 import os
 import json
@@ -98,7 +103,7 @@ else:
     print("❌ 较差 - 题目质量差，需要重新生成")
 
 # 6. 保存评估结果
-output_file = "./evaluation_results/llm_judge_results.json"
+output_file = result_path("chapter12", "evaluation_results", "llm_judge_results.json")
 os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
 with open(output_file, 'w', encoding='utf-8') as f:

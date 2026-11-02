@@ -3,6 +3,11 @@
 展示Any格式→Markdown→分块→向量化的完整流程
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import os
 import tempfile
 import time
@@ -18,7 +23,7 @@ class MarkItDownPipelineDemo:
 
     def __init__(self):
         self.rag_tool = RAGTool(
-            knowledge_base_path="./demo_rag_kb", rag_namespace="markitdown_demo"
+            knowledge_base_path=result_path("chapter8", "knowledge_bases", "demo_rag_kb"), rag_namespace="markitdown_demo"
         )
         self.temp_dir = tempfile.mkdtemp()
 

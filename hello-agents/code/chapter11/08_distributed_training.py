@@ -18,6 +18,11 @@
    accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml 07_distributed_training.py
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 import os
 
@@ -56,7 +61,7 @@ def main():
         "action": "train",
         "algorithm": "grpo",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./models/grpo_distributed",
+        "output_dir": result_path("chapter11", "models", "grpo_distributed"),
         "max_samples": 200,  # 使用200个样本
         "num_epochs": 2,
         "batch_size": 2,  # 每个GPU的batch size

@@ -4,6 +4,11 @@
 演示如何使用RLTrainingTool评估训练后的模型
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 from pathlib import Path
 import json
@@ -29,7 +34,7 @@ def evaluate_sft_model():
     
     config = {
         "action": "evaluate",
-        "model_path": "./output/quick_test/sft",
+        "model_path": result_path("chapter11", "output", "quick_test/sft"),
         "max_samples": 50  # 使用50个测试样本
     }
     
@@ -63,7 +68,7 @@ def evaluate_grpo_model():
     
     config = {
         "action": "evaluate",
-        "model_path": "./output/quick_test/grpo",
+        "model_path": result_path("chapter11", "output", "quick_test/grpo"),
         "max_samples": 50
     }
     
@@ -103,7 +108,7 @@ def compare_sft_grpo():
     print("\n1. 评估SFT模型...")
     sft_config = {
         "action": "evaluate",
-        "model_path": "./output/quick_test/sft",
+        "model_path": result_path("chapter11", "output", "quick_test/sft"),
         "max_samples": 100
     }
     
@@ -116,7 +121,7 @@ def compare_sft_grpo():
     print("\n2. 评估GRPO模型...")
     grpo_config = {
         "action": "evaluate",
-        "model_path": "./output/quick_test/grpo",
+        "model_path": result_path("chapter11", "output", "quick_test/grpo"),
         "max_samples": 100
     }
     
@@ -184,8 +189,8 @@ def complete_evaluation():
     
     models = {
         "基线模型": "Qwen/Qwen3-0.6B",
-        "SFT模型": "./output/quick_test/sft",
-        "GRPO模型": "./output/quick_test/grpo"
+        "SFT模型": result_path("chapter11", "output", "quick_test/sft"),
+        "GRPO模型": result_path("chapter11", "output", "quick_test/grpo")
     }
     
     print("="*80)
@@ -245,8 +250,8 @@ def practical_evaluation():
     
     # 检查模型是否存在
     import os
-    sft_path = "./output/quick_test/sft"
-    grpo_path = "./output/quick_test/grpo"
+    sft_path = result_path("chapter11", "output", "quick_test/sft")
+    grpo_path = result_path("chapter11", "output", "quick_test/grpo")
     
     if not os.path.exists(sft_path):
         print(f"\n❌ SFT模型不存在: {sft_path}")

@@ -17,6 +17,11 @@
     --model-name: 模型名称（默认：HelloAgents）
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 import subprocess
 from pathlib import Path
@@ -120,7 +125,7 @@ def export_bfcl_format(results: dict, category: str, model_name: str) -> Path:
     print("="*60)
     
     # 输出目录
-    output_dir = project_root / "evaluation_results" / "bfcl_official"
+    output_dir = _RunPath(result_path("chapter12", "evaluation_results", "bfcl_official"))
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # 输出文件
@@ -146,7 +151,7 @@ def copy_to_bfcl_result_dir(source_file: Path, model_name: str, category: str) -
     # BFCL结果目录
     # 注意：BFCL会将模型名中的"/"替换为"_"
     safe_model_name = model_name.replace("/", "_")
-    result_dir = project_root / "result" / safe_model_name
+    result_dir = _RunPath(result_path("chapter12", "bfcl_runtime", "result", safe_model_name))
     result_dir.mkdir(parents=True, exist_ok=True)
     
     # 目标文件
@@ -185,7 +190,7 @@ def run_bfcl_official_eval(model_name: str, category: str) -> bool:
         
         result = subprocess.run(
             cmd,
-            cwd=str(project_root),
+            cwd=result_path("chapter12", "bfcl_runtime"),
             capture_output=True,
             text=True,
             encoding='utf-8'
@@ -219,7 +224,7 @@ def show_results(model_name: str, category: str):
     print("="*60)
     
     # CSV文件
-    csv_file = project_root / "score" / "data_non_live.csv"
+    csv_file = _RunPath(result_path("chapter12", "bfcl_runtime")) / "score" / "data_non_live.csv"
     
     if csv_file.exists():
         print(f"\n📊 评估结果汇总:")
@@ -231,7 +236,7 @@ def show_results(model_name: str, category: str):
     
     # 详细评分文件
     safe_model_name = model_name.replace("/", "_")
-    score_file = project_root / "score" / safe_model_name / "non_live" / f"BFCL_v4_{category}_score.json"
+    score_file = _RunPath(result_path("chapter12", "bfcl_runtime")) / "score" / safe_model_name / "non_live" / f"BFCL_v4_{category}_score.json"
     
     if score_file.exists():
         print(f"\n📝 详细评分文件:")

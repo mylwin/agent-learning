@@ -4,6 +4,11 @@
 使用少量数据快速测试SFT和GRPO训练流程
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 from pathlib import Path
 import json
@@ -60,7 +65,7 @@ def quick_test():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/quick_test/sft",
+        "output_dir": result_path("chapter11", "output", "quick_test/sft"),
         "max_samples": 10,
         "num_epochs": 1,
         "batch_size": 2,
@@ -91,7 +96,7 @@ def quick_test():
         "action": "train",
         "algorithm": "grpo",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/quick_test/grpo",
+        "output_dir": result_path("chapter11", "output", "quick_test/grpo"),
         "max_samples": 10,
         "num_epochs": 1,
         "batch_size": 2,

@@ -4,6 +4,11 @@ AIME数学题目生成器
 使用HelloAgents框架生成AIME风格的数学题目
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[2]))
+from run_paths import result_path, memory_config
+
 import json
 import os
 import time
@@ -337,7 +342,7 @@ Important Notes:
     def generate_and_save(
         self,
         num_problems: int = 30,
-        output_dir: str = "data_generation/generated_data"
+        output_dir: str = result_path("chapter12", "data_generation", "generated_data")
     ) -> str:
         """生成并保存题目"""
         # 创建输出目录

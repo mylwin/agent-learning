@@ -7,6 +7,11 @@
 适合需要自定义评估流程的场景。
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 from hello_agents import SimpleAgent, HelloAgentsLLM
 from hello_agents.evaluation import BFCLDataset, BFCLEvaluator
 
@@ -54,7 +59,7 @@ for detail in results['detailed_results']:
 # 7. 导出结果
 evaluator.export_results(
     results,
-    output_file="./evaluation_results/bfcl_custom_result.json"
+    output_file=result_path("chapter12", "evaluation_results", "bfcl_custom_result.json")
 )
 
 print("✅ 结果已导出到 ./evaluation_results/bfcl_custom_result.json")

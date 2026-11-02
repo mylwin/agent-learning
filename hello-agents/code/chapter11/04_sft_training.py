@@ -4,6 +4,11 @@
 演示如何使用RLTrainingTool进行SFT监督微调
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 from pathlib import Path
 import json
@@ -31,7 +36,7 @@ def minimal_sft_training():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/sft_minimal",
+        "output_dir": result_path("chapter11", "output", "sft_minimal"),
         "max_samples": 10,
         "num_epochs": 1,
     }
@@ -70,7 +75,7 @@ def standard_sft_training():
         
         # 模型配置
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/sft_standard",
+        "output_dir": result_path("chapter11", "output", "sft_standard"),
         
         # 数据配置
         "max_samples": 1000,  # 使用1000个样本
@@ -119,7 +124,7 @@ def full_dataset_training():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/sft_full",
+        "output_dir": result_path("chapter11", "output", "sft_full"),
         
         # 使用全部数据
         "max_samples": None,  # None = 使用全部数据
@@ -215,7 +220,7 @@ def memory_optimized_training():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/sft_memory_opt",
+        "output_dir": result_path("chapter11", "output", "sft_memory_opt"),
         
         # 显存优化
         "max_samples": 1000,
@@ -255,7 +260,7 @@ def practical_training_example():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/sft_practical",
+        "output_dir": result_path("chapter11", "output", "sft_practical"),
         
         # 使用较少样本进行快速测试
         "max_samples": 100,

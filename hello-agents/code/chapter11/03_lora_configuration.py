@@ -3,6 +3,11 @@
 演示如何通过RLTrainingTool配置和使用LoRA进行参数高效微调
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 from pathlib import Path
 import json
@@ -35,7 +40,7 @@ def basic_lora_config():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/lora_basic",
+        "output_dir": result_path("chapter11", "output", "lora_basic"),
         "max_samples": 100,
         "num_epochs": 1,
         
@@ -157,7 +162,7 @@ def practical_training_configs():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/quick_test",
+        "output_dir": result_path("chapter11", "output", "quick_test"),
         "max_samples": 100,
         "num_epochs": 1,
         "batch_size": 8,
@@ -171,7 +176,7 @@ def practical_training_configs():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/standard",
+        "output_dir": result_path("chapter11", "output", "standard"),
         "max_samples": 1000,
         "num_epochs": 3,
         "batch_size": 4,
@@ -186,7 +191,7 @@ def practical_training_configs():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/high_quality",
+        "output_dir": result_path("chapter11", "output", "high_quality"),
         "max_samples": None,  # 使用全部数据
         "num_epochs": 5,
         "batch_size": 2,

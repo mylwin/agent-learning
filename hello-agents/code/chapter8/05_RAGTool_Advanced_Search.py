@@ -3,6 +3,11 @@
 展示MQE、HyDE等先进检索技术的实现和应用
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import time
 
 from dotenv import load_dotenv
@@ -16,7 +21,7 @@ class AdvancedSearchDemo:
 
     def __init__(self):
         self.rag_tool = RAGTool(
-            knowledge_base_path="./advanced_search_kb",
+            knowledge_base_path=result_path("chapter8", "knowledge_bases", "advanced_search_kb"),
             rag_namespace="advanced_search_demo",
         )
         self._setup_knowledge_base()

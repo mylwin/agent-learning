@@ -11,6 +11,11 @@ NoteTool 基本操作示例
 7. 删除笔记 (delete)
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import re
 from textwrap import dedent
 
@@ -31,7 +36,7 @@ def main():
     print("=" * 80 + "\n")
 
     # 初始化 NoteTool
-    notes = NoteTool(workspace="./project_notes")
+    notes = NoteTool(workspace=result_path("chapter9", "notes", "project_notes"))
 
     # 1. 创建笔记
     print("1. 创建笔记...")

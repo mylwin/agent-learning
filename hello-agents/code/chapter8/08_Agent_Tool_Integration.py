@@ -3,6 +3,11 @@
 展示如何在HelloAgents框架中集成MemoryTool和RAGTool
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,12 +31,13 @@ class AgentIntegrationDemo:
         # 初始化工具
         print("1. 初始化工具...")
         self.memory_tool = MemoryTool(
+            memory_config=memory_config(),
             user_id="agent_integration_user",
             memory_types=["working", "episodic", "semantic", "perceptual"],
         )
 
         self.rag_tool = RAGTool(
-            knowledge_base_path="./agent_integration_kb", rag_namespace="agent_demo"
+            knowledge_base_path=result_path("chapter8", "knowledge_bases", "agent_integration_kb"), rag_namespace="agent_demo"
         )
 
         print("✅ MemoryTool和RAGTool初始化完成")

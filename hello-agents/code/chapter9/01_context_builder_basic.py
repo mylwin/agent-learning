@@ -8,6 +8,11 @@ ContextBuilder 基础使用示例
 4. 构建结构化上下文
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,8 +30,8 @@ def main():
 
     # 1. 初始化工具（Optional）
     print("1. 初始化工具...")
-    memory_tool = MemoryTool(user_id="user123")
-    rag_tool = RAGTool(knowledge_base_path="./knowledge_base")
+    memory_tool = MemoryTool(memory_config=memory_config(), user_id="user123")
+    rag_tool = RAGTool(knowledge_base_path=result_path("shared", "knowledge_base"))
 
     # 2. 创建 ContextBuilder
     print("2. 创建 ContextBuilder...")

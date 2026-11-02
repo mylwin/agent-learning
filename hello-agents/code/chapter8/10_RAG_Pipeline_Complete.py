@@ -3,6 +3,11 @@
 展示从文档处理到智能问答的完整RAG流程
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import time
 from datetime import datetime
 
@@ -25,7 +30,7 @@ class RAGPipelineComplete:
 
         # 初始化RAG工具
         self.rag_tool = RAGTool(
-            knowledge_base_path="./rag_pipeline_kb", rag_namespace="complete_pipeline"
+            knowledge_base_path=result_path("chapter8", "knowledge_bases", "rag_pipeline_kb"), rag_namespace="complete_pipeline"
         )
 
         print("✅ RAG系统初始化完成")

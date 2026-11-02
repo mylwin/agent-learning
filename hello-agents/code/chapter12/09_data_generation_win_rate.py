@@ -11,6 +11,11 @@ Win Rate评估通过对比生成题目和真题，评估生成质量：
 - Win Rate < 50%：生成质量低于真题（需要改进）
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 import os
 import json
@@ -109,7 +114,7 @@ for i, comparison in enumerate(results['comparisons'][:5], 1):
         print(f"  理由: {comparison['reason'][:100]}...")
 
 # 8. 保存评估结果
-output_file = "./evaluation_results/win_rate_results.json"
+output_file = result_path("chapter12", "evaluation_results", "win_rate_results.json")
 os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
 with open(output_file, 'w', encoding='utf-8') as f:

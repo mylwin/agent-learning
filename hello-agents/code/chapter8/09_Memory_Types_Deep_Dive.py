@@ -3,6 +3,11 @@
 详细展示WorkingMemory、EpisodicMemory、SemanticMemory、PerceptualMemory的实现特点
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,18 +30,22 @@ class MemoryTypesDeepDive:
 
         # 创建专门的记忆工具实例
         self.working_memory_tool = MemoryTool(
+            memory_config=memory_config(),
             user_id="working_memory_user", memory_types=["working"]
         )
 
         self.episodic_memory_tool = MemoryTool(
+            memory_config=memory_config(),
             user_id="episodic_memory_user", memory_types=["episodic"]
         )
 
         self.semantic_memory_tool = MemoryTool(
+            memory_config=memory_config(),
             user_id="semantic_memory_user", memory_types=["semantic"]
         )
 
         self.perceptual_memory_tool = MemoryTool(
+            memory_config=memory_config(),
             user_id="perceptual_memory_user", memory_types=["perceptual"]
         )
 

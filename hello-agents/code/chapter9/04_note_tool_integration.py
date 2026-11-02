@@ -7,6 +7,11 @@ NoteTool 与 ContextBuilder 集成示例
 3. 基于历史笔记的连贯建议
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -32,9 +37,9 @@ class ProjectAssistant(SimpleAgent):
         self.project_name = project_name
 
         # 初始化工具
-        # self.memory_tool = MemoryTool(user_id=project_name)
+        # self.memory_tool = MemoryTool(memory_config=memory_config(), user_id=project_name)
         # self.rag_tool = RAGTool(knowledge_base_path=f"./{project_name}_kb")
-        self.note_tool = NoteTool(workspace=f"./{project_name}_notes")
+        self.note_tool = NoteTool(workspace=result_path("chapter9", "notes", f"{project_name}_notes"))
 
         # 初始化上下文构建器
         self.context_builder = ContextBuilder(

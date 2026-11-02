@@ -140,7 +140,7 @@ class NPCAgentManager:
     def _create_memory_manager(self, npc_name: str) -> MemoryManager:
         """为NPC创建记忆管理器"""
         # 创建记忆存储目录
-        memory_dir = os.path.join(os.path.dirname(__file__), 'memory_data', npc_name)
+        memory_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'run_result', 'chapter15', 'memory_data', npc_name)
         os.makedirs(memory_dir, exist_ok=True)
 
         # 配置记忆系统

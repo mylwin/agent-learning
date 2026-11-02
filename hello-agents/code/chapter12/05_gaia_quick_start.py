@@ -11,6 +11,11 @@
 3. 必须使用GAIA官方系统提示词
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path
+
 import os
 from hello_agents import SimpleAgent, HelloAgentsLLM
 from hello_agents.tools import GAIAEvaluationTool
@@ -37,13 +42,20 @@ agent = SimpleAgent(
 gaia_tool = GAIAEvaluationTool()
 
 # 4. 运行评估
-results = gaia_tool.run(
-    agent=agent,
-    level=1,              # 评估级别（1=简单，2=中等，3=困难）
-    max_samples=2,        # 评估样本数（0表示全部）
-    export_results=True,  # 导出结果到GAIA官方格式
-    generate_report=True  # 生成详细报告
-)
+_previous_cwd = os.getcwd()
+_gaia_output = _RunPath(result_path("chapter12", "gaia"))
+_gaia_output.mkdir(parents=True, exist_ok=True)
+try:
+    os.chdir(_gaia_output)
+    results = gaia_tool.run(
+        agent=agent,
+        level=1,              # 评估级别（1=简单，2=中等，3=困难）
+        max_samples=2,        # 评估样本数（0表示全部）
+        export_results=True,  # 导出结果到GAIA官方格式
+        generate_report=True  # 生成详细报告
+    )
+finally:
+    os.chdir(_previous_cwd)
 
 # 5. 查看结果
 print(f"\n评估结果:")

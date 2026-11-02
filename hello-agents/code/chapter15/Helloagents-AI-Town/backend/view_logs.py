@@ -6,7 +6,7 @@ from pathlib import Path
 from datetime import datetime
 
 # 日志目录
-LOGS_DIR = Path(__file__).parent / "logs"
+LOGS_DIR = Path(__file__).resolve().parents[4] / "run_result" / "chapter15" / "logs"
 today = datetime.now().strftime("%Y-%m-%d")
 LOG_FILE = LOGS_DIR / f"dialogue_{today}.log"
 

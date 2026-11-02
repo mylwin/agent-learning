@@ -3,6 +3,11 @@
 展示MemoryTool的核心execute方法和基本操作
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,6 +21,7 @@ def memory_tool_execute_demo():
 
     # 初始化MemoryTool
     memory_tool = MemoryTool(
+            memory_config=memory_config(),
         user_id="demo_user",
         memory_types=["working", "episodic", "semantic", "perceptual"],
     )

@@ -3,6 +3,11 @@
 展示MemoryTool和MemoryManager的分层架构
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,7 +19,7 @@ class MemoryToolArchitectureDemo:
     """MemoryTool架构演示类"""
 
     def __init__(self):
-        self.memory_config = MemoryConfig()
+        self.memory_config = memory_config()
         self.memory_types = ["working", "episodic", "semantic", "perceptual"]
 
     def demonstrate_memory_tool_init(self):
@@ -189,7 +194,7 @@ class MemoryToolArchitectureDemo:
         print("• 模块化的组件设计")
 
         # 演示自定义配置
-        custom_config = MemoryConfig()
+        custom_config = memory_config()
         custom_config.working_memory_capacity = 100
         custom_config.working_memory_ttl_minutes = 120
 

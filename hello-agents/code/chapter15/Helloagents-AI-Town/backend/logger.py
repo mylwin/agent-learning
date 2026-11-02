@@ -6,8 +6,8 @@ from datetime import datetime
 from pathlib import Path
 
 # 创建logs目录
-LOGS_DIR = Path(__file__).parent / "logs"
-LOGS_DIR.mkdir(exist_ok=True)
+LOGS_DIR = Path(__file__).resolve().parents[4] / "run_result" / "chapter15" / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 # 创建日志文件名 (按日期)
 today = datetime.now().strftime("%Y-%m-%d")

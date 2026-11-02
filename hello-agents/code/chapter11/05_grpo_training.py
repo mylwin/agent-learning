@@ -4,6 +4,11 @@
 演示如何使用RLTrainingTool进行GRPO强化学习训练
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import sys
 from pathlib import Path
 import json
@@ -31,7 +36,7 @@ def minimal_grpo_training():
         "action": "train",
         "algorithm": "grpo",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/grpo_minimal",
+        "output_dir": result_path("chapter11", "output", "grpo_minimal"),
         "max_samples": 10,
         "num_epochs": 1,
     }
@@ -66,8 +71,8 @@ def standard_grpo_training():
         "algorithm": "grpo",
         
         # 模型配置 - 可以使用SFT训练后的模型
-        "model_name": "Qwen/Qwen3-0.6B",  # 或 "./output/sft_standard"
-        "output_dir": "./output/grpo_standard",
+        "model_name": "Qwen/Qwen3-0.6B",  # 或 result_path("chapter11", "output", "sft_standard")
+        "output_dir": result_path("chapter11", "output", "grpo_standard"),
         
         # 数据配置
         "max_samples": 500,  # GRPO通常使用较少样本
@@ -112,7 +117,7 @@ def full_dataset_training():
         "action": "train",
         "algorithm": "grpo",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/grpo_full",
+        "output_dir": result_path("chapter11", "output", "grpo_full"),
         
         # 使用全部数据
         "max_samples": None,  # None = 使用全部数据
@@ -157,7 +162,7 @@ def complete_sft_grpo_pipeline():
         "action": "train",
         "algorithm": "sft",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/pipeline_sft",
+        "output_dir": result_path("chapter11", "output", "pipeline_sft"),
         "max_samples": 1000,
         "num_epochs": 3,
         "batch_size": 4,
@@ -176,8 +181,8 @@ def complete_sft_grpo_pipeline():
     grpo_config = {
         "action": "train",
         "algorithm": "grpo",
-        "model_name": "./output/pipeline_sft",  # 使用SFT模型
-        "output_dir": "./output/pipeline_grpo",
+        "model_name": result_path("chapter11", "output", "pipeline_sft"),  # 使用SFT模型
+        "output_dir": result_path("chapter11", "output", "pipeline_grpo"),
         "max_samples": 500,
         "num_epochs": 3,
         "batch_size": 2,
@@ -263,7 +268,7 @@ def practical_training_example():
         "action": "train",
         "algorithm": "grpo",
         "model_name": "Qwen/Qwen3-0.6B",
-        "output_dir": "./output/grpo_practical",
+        "output_dir": result_path("chapter11", "output", "grpo_practical"),
         
         # 使用较少样本进行快速测试
         "max_samples": 50,

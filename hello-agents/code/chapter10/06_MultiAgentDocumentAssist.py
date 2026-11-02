@@ -5,6 +5,11 @@
 - Agent1：GitHub搜索专家
 - Agent2：文档生成专家
 """
+
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
 from hello_agents import SimpleAgent, HelloAgentsLLM
 from hello_agents.tools import MCPTool
 from dotenv import load_dotenv
@@ -113,7 +118,7 @@ try:
     print("\n【步骤5】保存报告到文件...")
     import os
     try:
-        with open("report.md", "w", encoding="utf-8") as f:
+        with open(result_path("chapter10", "report.md"), "w", encoding="utf-8") as f:
             f.write(report_content)
         print("✅ 报告已保存到 report.md")
 

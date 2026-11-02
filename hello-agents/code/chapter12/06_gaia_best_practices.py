@@ -9,6 +9,11 @@
 3. 结果解读
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_workdir
+
 import os
 from hello_agents import SimpleAgent, HelloAgentsLLM
 from hello_agents.tools import GAIAEvaluationTool
@@ -38,21 +43,26 @@ print("="*60)
 print("最佳实践1：分级评估")
 print("="*60)
 
+def _run_gaia(*args, **kwargs):
+    with result_workdir("chapter12", "gaia"):
+        return gaia_tool.run(*args, **kwargs)
+
+
 # 第一步：评估Level 1（简单任务）
 print("\n第一步：评估Level 1（简单任务）")
-results_l1 = gaia_tool.run(agent, level=1, max_samples=10)
+results_l1 = _run_gaia(agent, level=1, max_samples=10)
 print(f"Level 1精确匹配率: {results_l1['exact_match_rate']:.2%}")
 
 # 第二步：如果Level 1表现良好，评估Level 2
 if results_l1['exact_match_rate'] > 0.6:
     print("\n第二步：评估Level 2（中等任务）")
-    results_l2 = gaia_tool.run(agent, level=2, max_samples=10)
+    results_l2 = _run_gaia(agent, level=2, max_samples=10)
     print(f"Level 2精确匹配率: {results_l2['exact_match_rate']:.2%}")
     
     # 第三步：如果Level 2表现良好，评估Level 3
     if results_l2['exact_match_rate'] > 0.4:
         print("\n第三步：评估Level 3（困难任务）")
-        results_l3 = gaia_tool.run(agent, level=3, max_samples=10)
+        results_l3 = _run_gaia(agent, level=3, max_samples=10)
         print(f"Level 3精确匹配率: {results_l3['exact_match_rate']:.2%}")
     else:
         print("\n⚠️ Level 2表现不佳，建议先优化后再评估Level 3")
@@ -69,7 +79,7 @@ print("="*60)
 # 快速测试（每个级别2个样本）
 for level in [1, 2, 3]:
     print(f"\n快速测试 Level {level}:")
-    results = gaia_tool.run(agent, level=level, max_samples=2)
+    results = _run_gaia(agent, level=level, max_samples=2)
     print(f"  精确匹配率: {results['exact_match_rate']:.2%}")
 
 # ============================================================

@@ -15,6 +15,11 @@ python data_generation/step2_evaluate_only.py <generated_data_path>
 python data_generation/step2_evaluate_only.py data_generation/generated_data/aime_generated_20251011_042741.json
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[2]))
+from run_paths import result_path, memory_config
+
 import json
 import os
 import sys
@@ -50,7 +55,7 @@ def run_evaluation(generated_data_path: str):
     
     # 创建评估结果目录
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    evaluation_dir = f"data_generation/evaluation_results/{timestamp}"
+    evaluation_dir = result_path("chapter12", "data_generation", "evaluation_results", timestamp)
     os.makedirs(evaluation_dir, exist_ok=True)
     os.makedirs(os.path.join(evaluation_dir, "llm_judge"), exist_ok=True)
     os.makedirs(os.path.join(evaluation_dir, "win_rate"), exist_ok=True)

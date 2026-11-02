@@ -8,6 +8,11 @@
 - 学习回顾和报告生成
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -34,8 +39,8 @@ class PDFLearningAssistant:
         self.session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
         # 初始化工具
-        self.memory_tool = MemoryTool(user_id=user_id)
-        self.rag_tool = RAGTool(rag_namespace=f"pdf_{user_id}")
+        self.memory_tool = MemoryTool(memory_config=memory_config(), user_id=user_id)
+        self.rag_tool = RAGTool(knowledge_base_path=result_path("chapter8", "knowledge_bases", f"pdf_{user_id}"), rag_namespace=f"pdf_{user_id}")
 
         # 学习统计
         self.stats = {
@@ -237,7 +242,7 @@ class PDFLearningAssistant:
 
         # 保存到文件
         if save_to_file:
-            report_file = f"learning_report_{self.session_id}.json"
+            report_file = result_path("chapter8", "reports", f"learning_report_{self.session_id}.json")
             try:
                 with open(report_file, "w", encoding="utf-8") as f:
                     json.dump(report, f, ensure_ascii=False, indent=2, default=str)

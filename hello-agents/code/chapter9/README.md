@@ -349,3 +349,7 @@ docker run -p 6333:6333 qdrant/qdrant
 
 如有问题或建议，欢迎提 Issue 或 PR！
 
+
+### 运行产物
+
+第 7 章之后示例的默认运行产物保存在 `hello-agents/run_result/`，与启动时的工作目录无关。第 8、9 章共享记忆保存在 `shared/memory_data/`；第 9 章笔记保存在 `chapter9/notes/`，会话报告保存在对应章节的 `reports/`。训练模型、评估结果以及第 14、15 章应用数据按章节存放。该目录已被 Git 忽略，请自行备份需要保留的数据。Deep Research 的 `NOTES_WORKSPACE` 仍可覆盖其默认笔记路径。

@@ -3,6 +3,11 @@
 展示工作记忆的混合检索策略和TTL机制
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
+from run_paths import result_path, memory_config
+
 import time
 
 from dotenv import load_dotenv
@@ -16,6 +21,7 @@ class WorkingMemoryDemo:
 
     def __init__(self):
         self.memory_tool = MemoryTool(
+            memory_config=memory_config(),
             user_id="working_memory_demo",
             memory_types=["working"],  # 只启用工作记忆
         )

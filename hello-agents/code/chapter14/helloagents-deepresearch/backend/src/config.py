@@ -1,3 +1,4 @@
+from pathlib import Path as _ResultPath
 import os
 from enum import Enum
 from typing import Any, Optional
@@ -42,7 +43,7 @@ class Configuration(BaseModel):
         description="Whether to store task progress in NoteTool",
     )
     notes_workspace: str = Field(
-        default="./notes",
+        default=str(_ResultPath(__file__).resolve().parents[5] / "run_result" / "chapter14" / "notes"),
         title="Notes Workspace",
         description="Directory for NoteTool to persist task notes",
     )

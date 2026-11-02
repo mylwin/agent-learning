@@ -9,6 +9,11 @@ python data_generation/step1_generate_only.py 30 3.0
 - 3.0: 每次生成之间的延迟（秒）
 """
 
+import sys as _run_sys
+from pathlib import Path as _RunPath
+_run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[2]))
+from run_paths import result_path, memory_config
+
 import sys
 from aime_generator import AIMEGenerator
 
@@ -32,7 +37,7 @@ def main():
     # 生成并保存
     generated_data_path = generator.generate_and_save(
         num_problems=num_problems,
-        output_dir="data_generation/generated_data"
+        output_dir=result_path("chapter12", "data_generation", "generated_data")
     )
     
     print(f"\n✅ 步骤1完成！生成数据保存在: {generated_data_path}")
