@@ -7,6 +7,8 @@ NoteTool 与 ContextBuilder 集成示例
 3. 基于历史笔记的连贯建议
 """
 
+from textwrap import dedent
+
 import sys as _run_sys
 from pathlib import Path as _RunPath
 _run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
@@ -218,7 +220,7 @@ class ProjectAssistant(SimpleAgent):
 
     def _build_system_instructions(self) -> str:
         """构建系统指令"""
-        return f"""你是 {self.project_name} 项目的长期助手。
+        return dedent(f"""你是 {self.project_name} 项目的长期助手。
                 你的职责:
                 1. 基于历史笔记提供连贯的建议
                 2. 追踪项目进展和待解决问题
@@ -228,7 +230,7 @@ class ProjectAssistant(SimpleAgent):
                 注意:
                 - 优先关注标记为 blocker 的问题
                 - 在建议中说明依据来源(笔记、记忆或知识库)
-                - 保持对项目整体进度的认识"""
+                - 保持对项目整体进度的认识""")
 
     def _update_history(self, user_input: str, response: str):
         """更新对话历史"""

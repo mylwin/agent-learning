@@ -1,5 +1,7 @@
 """批量NPC对话生成器"""
 
+from textwrap import dedent
+
 import sys
 import os
 import json
@@ -110,7 +112,7 @@ class NPCBatchGenerator:
         
         npc_desc_text = "\n".join(npc_descriptions)
         
-        prompt = f"""请为Datawhale办公室的3个NPC生成当前的对话或行为描述。
+        prompt = dedent(f"""请为Datawhale办公室的3个NPC生成当前的对话或行为描述。
 
 【场景】{context}
 
@@ -132,7 +134,7 @@ class NPCBatchGenerator:
 {{"张三": "这个bug真是见鬼了,已经调试两小时了...", "李四": "嗯,这个功能的优先级需要重新评估一下。", "王五": "这杯咖啡的拉花真不错,灵感来了!"}}
 
 请生成(只返回JSON,不要其他内容):
-"""
+""")
         return prompt
     
     def _parse_response(self, response: str) -> Optional[Dict[str, str]]:

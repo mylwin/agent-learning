@@ -4,6 +4,8 @@ AIME数学题目生成器
 使用HelloAgents框架生成AIME风格的数学题目
 """
 
+from textwrap import dedent
+
 import sys as _run_sys
 from pathlib import Path as _RunPath
 _run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[2]))
@@ -25,7 +27,7 @@ class AIMEGenerator:
     """AIME题目生成器"""
     
     # AIME题目生成提示词（英文）
-    GENERATION_PROMPT = """You are a professional mathematics competition problem designer, skilled in creating AIME (American Invitational Mathematics Examination) style problems.
+    GENERATION_PROMPT = dedent("""You are a professional mathematics competition problem designer, skilled in creating AIME (American Invitational Mathematics Examination) style problems.
 
 AIME Problem Characteristics:
 1. Answer: An integer between 0 and 999
@@ -48,7 +50,7 @@ Please output in the following JSON format, avoid using special escape character
     "topic": "Algebra"
 }
 ```
-"""
+""")
     
     def __init__(
         self,
@@ -147,7 +149,7 @@ Please output in the following JSON format, avoid using special escape character
         example_answer = example.get('answer', 0)
 
         # 构建带参考样例的提示词（英文）
-        prompt = f"""You are a professional mathematics competition problem designer, skilled in creating AIME (American Invitational Mathematics Examination) style problems.
+        prompt = dedent(f"""You are a professional mathematics competition problem designer, skilled in creating AIME (American Invitational Mathematics Examination) style problems.
 
 【Reference Example】(For style reference only, please generate a completely different problem)
 Problem: {example_problem}
@@ -179,7 +181,7 @@ Important Notes:
 - **Must generate a completely different problem from the reference**
 - You can reference the style, but do not copy the content
 - Ensure the problem is creative and original
-"""
+""")
         return prompt
 
     def _parse_response(self, response: str) -> Dict[str, Any]:

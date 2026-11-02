@@ -1,3 +1,5 @@
+
+from textwrap import dedent
 from datetime import datetime
 
 
@@ -7,7 +9,7 @@ def get_current_date():
 
 
 
-todo_planner_system_prompt = """
+todo_planner_system_prompt = dedent("""
 你是一名研究规划专家，请把复杂主题拆解为一组有限、互补的待办任务。
 - 任务之间应互补，避免重复；
 - 每个任务要有明确意图与可执行的检索方向；
@@ -33,10 +35,10 @@ todo_planner_system_prompt = """
 [TOOL_CALL:note:{"action":"create","task_id":1,"title":"任务 1: 背景梳理","note_type":"task_state","tags":["deep_research","task_1"],"content":"..."}]
 ```
 </TOOLS>
-"""
+""")
 
 
-todo_planner_instructions = """
+todo_planner_instructions = dedent("""
 
 <CONTEXT>
 当前日期：{current_date}
@@ -57,10 +59,10 @@ todo_planner_instructions = """
 </FORMAT>
 
 如果主题信息不足以规划任务，请输出空数组：{{"tasks": []}}。必要时使用笔记工具记录你的思考过程。
-"""
+""")
 
 
-task_summarizer_instructions = """
+task_summarizer_instructions = dedent("""
 你是一名研究执行专家，请基于给定的上下文，为特定任务生成要点总结，对内容进行详尽且细致的总结而不是走马观花，需要勇于创新、打破常规思维，并尽可能多维度，从原理、应用、优缺点、工程实践、对比、历史演变等角度进行拓展。
 
 <GOAL>
@@ -81,10 +83,10 @@ task_summarizer_instructions = """
 - 若任务无有效结果，输出"暂无可用信息"。
 - 最终呈现给用户的总结中禁止包含 `[TOOL_CALL:...]` 指令。
 </FORMAT>
-"""
+""")
 
 
-report_writer_instructions = """
+report_writer_instructions = dedent("""
 你是一名专业的分析报告撰写者，请根据输入的任务总结与参考信息，生成结构化的研究报告。
 
 <REPORT_TEMPLATE>
@@ -107,4 +109,4 @@ report_writer_instructions = """
 - 报告生成前，请针对每个 note_id 调用 `[TOOL_CALL:note:{"action":"read","note_id":"<note_id>"}]` 读取任务笔记。
 - 如需在报告层面沉淀结果，可创建新的 `conclusion` 类型笔记，例如：`[TOOL_CALL:note:{"action":"create","title":"研究报告：{研究主题}","note_type":"conclusion","tags":["deep_research","report"],"content":"...报告要点..."}]`。
 </NOTES>
-"""
+""")

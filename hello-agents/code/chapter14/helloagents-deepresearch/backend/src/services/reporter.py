@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from textwrap import dedent
+
 import json
 
 from hello_agents import ToolAwareSimpleAgent
@@ -57,11 +59,11 @@ class ReportingService:
         )
 
         prompt = (
-            f"研究主题：{state.research_topic}\n"
+            dedent(f"研究主题：{state.research_topic}\n"
             f"任务概览：\n{''.join(tasks_block)}\n"
             f"可用任务笔记：\n{notes_section}\n"
             f"请针对每条任务笔记使用格式：[TOOL_CALL:note:{read_template}] 读取内容，整合所有信息后撰写报告。\n"
-            f"如需输出汇总结论，可追加调用：[TOOL_CALL:note:{create_conclusion_template}] 保存报告要点。"
+            f"如需输出汇总结论，可追加调用：[TOOL_CALL:note:{create_conclusion_template}] 保存报告要点。")
         )
 
         response = self._agent.run(prompt)

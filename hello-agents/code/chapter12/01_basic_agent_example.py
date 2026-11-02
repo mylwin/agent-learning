@@ -7,6 +7,8 @@
 但我们如何知道它的表现如何？这就是为什么需要评估系统。
 """
 
+from textwrap import dedent
+
 from hello_agents import SimpleAgent, HelloAgentsLLM
 from hello_agents.tools import SearchTool
 
@@ -14,7 +16,7 @@ from hello_agents.tools import SearchTool
 llm = HelloAgentsLLM()
 
 # 创建一个强调工具使用的系统提示词
-system_prompt = """你是一个AI助手，可以使用搜索工具来获取最新信息。
+system_prompt = dedent("""你是一个AI助手，可以使用搜索工具来获取最新信息。
 
 当需要搜索信息时，请使用以下格式：
 [TOOL_CALL:search:搜索关键词]
@@ -23,7 +25,7 @@ system_prompt = """你是一个AI助手，可以使用搜索工具来获取最�
 - [TOOL_CALL:search:最新AI新闻]
 - [TOOL_CALL:search:Python编程教程]
 
-请在回答问题前先使用搜索工具获取最新信息。"""
+请在回答问题前先使用搜索工具获取最新信息。""")
 
 agent = SimpleAgent(name="AI助手", llm=llm, system_prompt=system_prompt)
 

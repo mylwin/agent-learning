@@ -1,5 +1,7 @@
 """在 Agent 中使用天气 MCP 服务器"""
 
+from textwrap import dedent
+
 import os
 from dotenv import load_dotenv
 from hello_agents import SimpleAgent, HelloAgentsLLM
@@ -15,9 +17,9 @@ def create_weather_assistant():
     assistant = SimpleAgent(
         name="天气助手",
         llm=llm,
-        system_prompt="""你是天气助手，可以查询城市天气。
+        system_prompt=dedent("""你是天气助手，可以查询城市天气。
 使用 mcp_get_weather 工具查询天气，支持中文城市名。
-"""
+""")
     )
 
     # 添加天气 MCP 工具

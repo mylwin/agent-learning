@@ -3,6 +3,8 @@
 展示完整的检索→上下文构建→答案生成流程
 """
 
+from textwrap import dedent
+
 import sys as _run_sys
 from pathlib import Path as _RunPath
 _run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
@@ -463,21 +465,21 @@ class IntelligentQADemo:
             },
             {
                 "name": "专业提示",
-                "system_prompt": """你是一个专业的技术顾问，具备以下能力：
+                "system_prompt": dedent("""你是一个专业的技术顾问，具备以下能力：
 1. 深入理解技术概念和原理
 2. 提供准确可靠的技术建议
 3. 用清晰简洁的语言解释复杂概念
-4. 基于提供的上下文信息回答问题""",
+4. 基于提供的上下文信息回答问题"""),
                 "description": "详细的能力描述和要求",
             },
             {
                 "name": "结构化提示",
-                "system_prompt": """你是一个专业的知识助手，请按以下要求回答：
+                "system_prompt": dedent("""你是一个专业的知识助手，请按以下要求回答：
 【理解】仔细分析问题的核心意图
 【检索】基于提供的上下文信息
 【整合】从多个片段提取关键信息
 【回答】用结构化格式清晰表达
-【引用】标注信息来源和依据""",
+【引用】标注信息来源和依据"""),
                 "description": "结构化的处理流程",
             },
         ]

@@ -1,3 +1,5 @@
+
+from textwrap import dedent
 from hello_agents.protocols import ANPDiscovery, register_service
 from hello_agents import SimpleAgent, HelloAgentsLLM
 from hello_agents.tools.builtin import ANPTool
@@ -33,7 +35,7 @@ print(f"✅ 注册了 {len(discovery.list_all_services())} 个计算节点")
 scheduler = SimpleAgent(
     name="任务调度器",
     llm=llm,
-    system_prompt="""你是一个智能任务调度器，负责：
+    system_prompt=dedent("""你是一个智能任务调度器，负责：
 1. 分析任务需求
 2. 选择最合适的计算节点
 3. 分配任务
@@ -42,7 +44,7 @@ scheduler = SimpleAgent(
 
 使用 service_discovery 工具时，必须提供 action 参数：
 - 查看所有节点：{"action": "discover_services", "service_type": "compute"}
-- 获取网络统计：{"action": "get_stats"}"""
+- 获取网络统计：{"action": "get_stats"}""")
 )
 
 # 添加ANP工具
@@ -59,7 +61,7 @@ def assign_task(task_description):
     print("=" * 50)
 
     # 让Agent智能选择节点
-    response = scheduler.run(f"""
+    response = scheduler.run(dedent(f"""
 请为以下任务选择最合适的计算节点：
 {task_description}
 
@@ -70,7 +72,7 @@ def assign_task(task_description):
 4. 说明选择理由
 
 请直接给出最终选择的节点ID和理由。
-    """)
+    """))
 
     print(response)
     print("=" * 50)

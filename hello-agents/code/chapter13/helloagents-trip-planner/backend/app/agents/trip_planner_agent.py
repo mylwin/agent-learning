@@ -1,5 +1,7 @@
 """多智能体旅行规划系统"""
 
+from textwrap import dedent
+
 import json
 from typing import Dict, Any, List
 from hello_agents import SimpleAgent
@@ -10,7 +12,7 @@ from ..config import get_settings
 
 # ============ Agent提示词 ============
 
-ATTRACTION_AGENT_PROMPT = """你是景点搜索专家。你的任务是根据城市和用户偏好搜索合适的景点。
+ATTRACTION_AGENT_PROMPT = dedent("""你是景点搜索专家。你的任务是根据城市和用户偏好搜索合适的景点。
 
 **重要提示:**
 你必须使用工具来搜索景点!不要自己编造景点信息!
@@ -30,9 +32,9 @@ ATTRACTION_AGENT_PROMPT = """你是景点搜索专家。你的任务是根据城
 1. 必须使用工具,不要直接回答
 2. 格式必须完全正确,包括方括号和冒号
 3. 参数用逗号分隔
-"""
+""")
 
-WEATHER_AGENT_PROMPT = """你是天气查询专家。你的任务是查询指定城市的天气信息。
+WEATHER_AGENT_PROMPT = dedent("""你是天气查询专家。你的任务是查询指定城市的天气信息。
 
 **重要提示:**
 你必须使用工具来查询天气!不要自己编造天气信息!
@@ -51,9 +53,9 @@ WEATHER_AGENT_PROMPT = """你是天气查询专家。你的任务是查询指定
 **注意:**
 1. 必须使用工具,不要直接回答
 2. 格式必须完全正确,包括方括号和冒号
-"""
+""")
 
-HOTEL_AGENT_PROMPT = """你是酒店推荐专家。你的任务是根据城市和景点位置推荐合适的酒店。
+HOTEL_AGENT_PROMPT = dedent("""你是酒店推荐专家。你的任务是根据城市和景点位置推荐合适的酒店。
 
 **重要提示:**
 你必须使用工具来搜索酒店!不要自己编造酒店信息!
@@ -70,9 +72,9 @@ HOTEL_AGENT_PROMPT = """你是酒店推荐专家。你的任务是根据城市�
 1. 必须使用工具,不要直接回答
 2. 格式必须完全正确,包括方括号和冒号
 3. 关键词使用"酒店"或"宾馆"
-"""
+""")
 
-PLANNER_AGENT_PROMPT = """你是行程规划专家。你的任务是根据景点信息和天气信息,生成详细的旅行计划。
+PLANNER_AGENT_PROMPT = dedent("""你是行程规划专家。你的任务是根据景点信息和天气信息,生成详细的旅行计划。
 
 请严格按照以下JSON格式返回旅行计划:
 ```json
@@ -149,7 +151,7 @@ PLANNER_AGENT_PROMPT = """你是行程规划专家。你的任务是根据景点
    - 餐饮预估费用(estimated_cost)
    - 酒店预估费用(estimated_cost)
    - 预算汇总(budget)包含各项总费用
-"""
+""")
 
 
 class MultiAgentTripPlanner:
@@ -293,7 +295,7 @@ class MultiAgentTripPlanner:
 
     def _build_planner_query(self, request: TripRequest, attractions: str, weather: str, hotels: str = "") -> str:
         """构建行程规划查询"""
-        query = f"""请根据以下信息生成{request.city}的{request.travel_days}天旅行计划:
+        query = dedent(f"""请根据以下信息生成{request.city}的{request.travel_days}天旅行计划:
 
 **基本信息:**
 - 城市: {request.city}
@@ -319,7 +321,7 @@ class MultiAgentTripPlanner:
 3. 考虑景点之间的距离和交通方式
 4. 返回完整的JSON格式数据
 5. 景点的经纬度坐标要真实准确
-"""
+""")
         if request.free_text_input:
             query += f"\n**额外要求:** {request.free_text_input}"
 

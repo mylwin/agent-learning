@@ -1,5 +1,7 @@
 """NPC Agent系统 - 支持记忆功能"""
 
+from textwrap import dedent
+
 import sys
 import os
 
@@ -50,7 +52,7 @@ NPC_ROLES = {
 
 def create_system_prompt(name: str, role: Dict[str, str]) -> str:
     """创建NPC的系统提示词"""
-    return f"""你是Datawhale办公室的{role['title']}{name}。
+    return dedent(f"""你是Datawhale办公室的{role['title']}{name}。
 
 【角色设定】
 - 职位: {role['title']}
@@ -81,7 +83,7 @@ def create_system_prompt(name: str, role: Dict[str, str]) -> str:
 - 要像真实的办公室同事一样自然对话
 - 可以表达情绪(开心、疲惫、兴奋等)
 - 回复要有人情味,不要太机械
-"""
+""")
 
 class NPCAgentManager:
     """NPC Agent管理器 - 支持记忆功能"""

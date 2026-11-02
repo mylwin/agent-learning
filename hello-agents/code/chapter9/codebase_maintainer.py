@@ -10,6 +10,8 @@ CodebaseMaintainer - 代码库维护助手
 关键改进：使用 Agentic 方式，让 agent 自主决定使用哪些工具
 """
 
+from textwrap import dedent
+
 import sys as _run_sys
 from pathlib import Path as _RunPath
 _run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
@@ -155,7 +157,7 @@ class CodebaseMaintainer:
 
     def _build_base_system_prompt(self) -> str:
         """构建基础系统提示"""
-        return f"""你是 {self.project_name} 项目的代码库维护助手。
+        return dedent(f"""你是 {self.project_name} 项目的代码库维护助手。
 
                 你的核心能力:
                 1. 使用 TerminalTool 探索代码库
@@ -177,7 +179,7 @@ class CodebaseMaintainer:
                 - 探索代码库时，先了解整体结构，再深入细节
                 - 发现重要信息时，主动使用 NoteTool 记录
                 - 保持回答的专业性和实用性
-                """
+                """)
 
     def _track_tool_usage(self):
         """统计工具使用情况"""
@@ -304,38 +306,38 @@ class CodebaseMaintainer:
         base_instructions = self._build_base_system_prompt()
 
         mode_hints = {
-            "explore": """
+            "explore": dedent("""
                 用户当前关注: 探索代码库
                 
                 建议策略:
                 - 考虑使用 TerminalTool 了解代码结构（如 find, ls, tree）
                 - 查看关键文件（如 README, 主要模块）
                 - 将架构信息记录到笔记方便后续查阅
-                """,
-            "analyze": """
+                """),
+            "analyze": dedent("""
                 用户当前关注: 分析代码质量
                 
                 建议策略:
                 - 考虑使用 grep 查找潜在问题（TODO, FIXME, BUG）
                 - 分析代码复杂度和结构
                 - 将发现的问题记录为 blocker 或 action 笔记
-                """,
-            "plan": """
+                """),
+            "plan": dedent("""
                 用户当前关注: 任务规划
                 
                 建议策略:
                 - 回顾历史笔记了解当前进度
                 - 基于已有信息制定行动计划
                 - 创建或更新 task_state 类型的笔记
-                """,
-            "auto": """
+                """),
+            "auto": dedent("""
                 用户当前关注: 自由对话
 
                 建议策略:
                 - 根据用户需求灵活决策
                 - 在需要时主动使用工具获取信息
                 - 不需要时可以直接回答
-                """,
+                """),
         }
 
         return base_instructions + "\n" + mode_hints.get(mode, mode_hints["auto"])

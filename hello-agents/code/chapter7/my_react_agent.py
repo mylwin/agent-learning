@@ -1,4 +1,6 @@
-MY_REACT_PROMPT = """
+
+from textwrap import dedent
+MY_REACT_PROMPT = dedent("""
     你是一个具备推理和行动能力的AI助手。
     你可以通过思考分析问题，然后调用合适的工具来获取信息，最终给出准确的答案。
 
@@ -26,7 +28,7 @@ MY_REACT_PROMPT = """
     {history}
 
     现在开始你的推理和行动：
-    """
+    """)
 
 from hello_agents import HelloAgentsLLM, Message, ReActAgent, ToolRegistry
 

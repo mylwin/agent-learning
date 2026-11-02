@@ -4,6 +4,8 @@ A2A 协议 + HelloAgents SimpleAgent 集成案例
 展示如何将 A2A 协议的 Agent 作为工具集成到 SimpleAgent 中
 """
 
+from textwrap import dedent
+
 from hello_agents.protocols import A2AServer, A2AClient
 from hello_agents import SimpleAgent, HelloAgentsLLM
 from hello_agents.tools import ToolRegistry, Tool, ToolParameter
@@ -137,7 +139,7 @@ llm = HelloAgentsLLM()
 receptionist = SimpleAgent(
     name="接待员",
     llm=llm,
-    system_prompt="""你是客服接待员，负责：
+    system_prompt=dedent("""你是客服接待员，负责：
 1. 分析客户问题类型（技术问题 or 销售问题）
 2. 使用合适的工具（tech_expert 或 sales_advisor）获取答案
 3. 整理答案并返回给客户
@@ -146,7 +148,7 @@ receptionist = SimpleAgent(
 - tech_expert: 回答技术问题
 - sales_advisor: 回答销售问题
 
-请保持礼貌和专业。"""
+请保持礼貌和专业。""")
 )
 
 # 添加 A2A 工具

@@ -3,6 +3,8 @@
 （2）实战案例：智能客服系统
 """
 
+from textwrap import dedent
+
 from hello_agents import SimpleAgent, HelloAgentsLLM
 from hello_agents.tools import A2ATool
 from hello_agents.protocols import A2AServer
@@ -49,12 +51,12 @@ time.sleep(2)
 receptionist = SimpleAgent(
     name="接待员",
     llm=llm,
-    system_prompt="""你是客服接待员，负责：
+    system_prompt=dedent("""你是客服接待员，负责：
 1. 分析客户问题类型（技术问题 or 销售问题）
 2. 将问题转发给相应的专家
 3. 整理专家的回答并返回给客户
 
-请保持礼貌和专业。"""
+请保持礼貌和专业。""")
 )
 
 # 添加技术专家工具

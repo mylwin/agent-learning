@@ -17,6 +17,8 @@
     --model-name: 模型名称（默认：HelloAgents）
 """
 
+from textwrap import dedent
+
 import sys as _run_sys
 from pathlib import Path as _RunPath
 _run_sys.path.insert(0, str(_RunPath(__file__).resolve().parents[1]))
@@ -37,7 +39,7 @@ from hello_agents.evaluation import BFCLDataset, BFCLEvaluator
 
 
 # 函数调用系统提示词
-FUNCTION_CALLING_SYSTEM_PROMPT = """你是一个专业的函数调用助手。
+FUNCTION_CALLING_SYSTEM_PROMPT = dedent("""你是一个专业的函数调用助手。
 
 你的任务是：根据用户的问题和提供的函数定义，生成正确的函数调用。
 
@@ -56,7 +58,7 @@ FUNCTION_CALLING_SYSTEM_PROMPT = """你是一个专业的函数调用助手。
 - 只输出JSON，不要添加"好的"、"我来帮你"等额外文字
 - 参数值必须与函数定义的类型匹配
 - 参数名必须与函数定义完全一致
-"""
+""")
 
 
 def check_bfcl_data(bfcl_data_dir: Path) -> bool:

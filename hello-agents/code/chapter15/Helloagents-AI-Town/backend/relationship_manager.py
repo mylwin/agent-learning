@@ -1,5 +1,7 @@
 """NPC好感度管理系统"""
 
+from textwrap import dedent
+
 import sys
 import os
 
@@ -44,7 +46,7 @@ class RelationshipManager:
     
     def _create_analyzer_prompt(self) -> str:
         """创建情感分析Agent的系统提示词"""
-        return """你是一个情感分析专家,负责分析对话中的情感倾向,判断是否应该改变NPC对玩家的好感度。
+        return dedent("""你是一个情感分析专家,负责分析对话中的情感倾向,判断是否应该改变NPC对玩家的好感度。
 
 【任务】
 分析玩家与NPC的对话,判断是否应该改变好感度,以及改变的幅度。
@@ -100,7 +102,7 @@ NPC: "当然可以!我很乐意分享。"
 - change_amount必须是整数
 - reason必须简短(10字以内)
 - sentiment必须是positive/neutral/negative之一
-"""
+""")
     
     def get_affinity(self, npc_name: str, player_id: str = "player") -> float:
         """获取好感度 (0-100)
@@ -154,13 +156,13 @@ NPC: "当然可以!我很乐意分享。"
             分析结果字典
         """
         # 构建分析提示
-        prompt = f"""请分析以下对话:
+        prompt = dedent(f"""请分析以下对话:
 
 玩家: {player_message}
 {npc_name}: {npc_response}
 
 请判断是否应该改变好感度,并给出变化量。
-"""
+""")
         
         try:
             # 调用分析Agent
