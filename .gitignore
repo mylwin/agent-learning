@@ -31,3 +31,7 @@ node_modules/
 /demo_codebase_notes/
 /demo_rag_kb/
 /advanced_search_kb/
+
+# MCP 文件系统示例输出
+/output.txt
+/hello-agents/code/chapter10/output.txt
