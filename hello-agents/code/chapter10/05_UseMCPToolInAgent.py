@@ -1,5 +1,14 @@
-from hello_agents import SimpleAgent, HelloAgentsLLM
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
+
+from hello_agents import HelloAgentsLLM, SimpleAgent
 from hello_agents.tools import MCPTool
+
+CHAPTER_DIR = Path(__file__).resolve().parent
 
 print("=" * 70)
 print("方式1：使用内置演示服务器")
@@ -26,7 +35,12 @@ print("=" * 70)
 fs_tool = MCPTool(
     name="filesystem",  # 指定唯一名称
     description="访问本地文件系统",
-    server_command=["npx", "-y", "@modelcontextprotocol/server-filesystem", "."]
+    server_command=[
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        str(CHAPTER_DIR),
+    ],
 )
 agent.add_tool(fs_tool)
 
@@ -35,7 +49,10 @@ agent.add_tool(fs_tool)
 custom_tool = MCPTool(
     name="custom_server",  # 使用不同的名称
     description="自定义业务逻辑服务器",
-    server_command=["python", "my_mcp_server.py"]
+    server_command=[
+        "python",
+        str(CHAPTER_DIR / "my_mcp_server.py"),
+    ],
 )
 agent.add_tool(custom_tool)
 
