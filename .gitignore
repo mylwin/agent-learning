@@ -21,16 +21,24 @@ node_modules/
 # Hello Agents 运行产物
 /hello-agents/run_result/
 
-# 旧版示例在仓库根目录生成的产物
-/learning_report_session_*.json
-/maintainer_report_session_*.json
-/memory_data/
-/project_notes/
-/data_pipeline_refactoring_notes/
-/my_flask_app_notes/
-/demo_codebase_notes/
-/demo_rag_kb/
-/advanced_search_kb/
+# 运行过程中生成的笔记与报告（不限定层级，chapter9 下也会生成）
+learning_report_session_*.json
+maintainer_report_session_*.json
+memory_data/
+project_notes/
+data_pipeline_refactoring_notes/
+my_flask_app_notes/
+demo_codebase_notes/
+demo_rag_kb/
+advanced_search_kb/
+
+# 第三方项目自带的测试（原作者仓库未跟踪）
+hello-agents/Co-creation-projects/**/test_*.py
+hello-agents/Co-creation-projects/**/tests/
+hello-agents/code/chapter7/test_advanced_search.py
+hello-agents/code/chapter7/test_plan_solve_agent.py
+hello-agents/code/chapter7/test_react_agent.py
+hello-agents/code/chapter7/test_reflection_agent.py
 
 # MCP 文件系统示例输出
 /output.txt
